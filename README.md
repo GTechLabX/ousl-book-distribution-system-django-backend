@@ -1,6 +1,5 @@
 
 
-````markdown
 # OUSL Book Distribution System
 
 This is the **OUSL Book Distribution System**, a web application designed to manage and distribute books efficiently for the Open University of Sri Lanka (OUSL). The system includes both frontend and backend components, with this repository containing the **Django backend**.
@@ -86,4 +85,5 @@ Visit **[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)** to access
 
 
 happy coding...................................:)
+
 
