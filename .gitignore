@@ -1,0 +1,21 @@
+# This is the .gitignore
+
+
+# Python 
+*.pyc
+__pycache__
+
+
+# Ignore the pycharm DATA
+
+.idea/
+
+
+# Ignore the virtual environments
+venv/
+
+
+# Ignore the .env file
+
+.env
+
