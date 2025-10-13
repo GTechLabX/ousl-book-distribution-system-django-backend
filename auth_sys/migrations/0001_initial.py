@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                 ('least_popular_route', models.CharField(blank=True, max_length=255, null=True)),
                 ('peak_booking_time', models.TimeField(blank=True, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='authSys.customuser')),
+                ('user', models.ForeignKey(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='auth_sys.customuser')),
             ],
         ),
         migrations.CreateModel(
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
                 ('total_buses', models.IntegerField(default=0)),
                 ('total_routes', models.IntegerField(default=0)),
                 ('last_updated', models.DateTimeField(auto_now=True)),
-                ('user', models.ForeignKey(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='authSys.customuser')),
+                ('user', models.ForeignKey(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='auth_sys.customuser')),
             ],
         ),
         migrations.CreateModel(
@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
                 ('bio', models.CharField(blank=True, db_column='bio', max_length=2000, null=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True, db_column='created_at')),
                 ('updated_at', models.DateTimeField(auto_now=True, db_column='updated_at')),
-                ('user', models.OneToOneField(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='authSys.customuser')),
+                ('user', models.OneToOneField(db_column='user', on_delete=django.db.models.deletion.CASCADE, to='auth_sys.customuser')),
             ],
         ),
     ]

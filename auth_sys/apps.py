@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class AuthsysConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'authSys'
+    name = 'auth_sys'
