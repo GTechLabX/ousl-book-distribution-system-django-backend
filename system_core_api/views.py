@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers.register_serializer import *
 
 
 class LoginAPIView(APIView):
@@ -38,10 +39,18 @@ class LoginAPIView(APIView):
 
 class RegisterAPIView(APIView):
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        first_name = request.data.get('first_name')
-        last_name = request.data.get('last_name')
-        email = request.data.get('email')
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': 'User has been successfully register'
+            }, status=status.HTTP_201_CREATED)
 
-        
+        else:
+            return Response({
+                'error': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentRegAPIView(APIView):
+    pass
