@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'auth_sys.apps.AuthsysConfig',
     'system_core_api.apps.SystemCoreApiConfig',
+    'dispatch_sys.apps.DispatchSysConfig',
     'rest_framework',
 ]
 
