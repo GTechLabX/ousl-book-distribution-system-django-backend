@@ -1,0 +1,115 @@
+from django.core.management.base import BaseCommand
+from auth_sys.models import Country
+
+COUNTRIES = [
+    {"country_name": "Afghanistan", "country_code": "AF", "country_tel_code": "+93"},
+    {"country_name": "Albania", "country_code": "AL", "country_tel_code": "+355"},
+    {"country_name": "Algeria", "country_code": "DZ", "country_tel_code": "+213"},
+    {"country_name": "Andorra", "country_code": "AD", "country_tel_code": "+376"},
+    {"country_name": "Angola", "country_code": "AO", "country_tel_code": "+244"},
+    {"country_name": "Argentina", "country_code": "AR", "country_tel_code": "+54"},
+    {"country_name": "Armenia", "country_code": "AM", "country_tel_code": "+374"},
+    {"country_name": "Australia", "country_code": "AU", "country_tel_code": "+61"},
+    {"country_name": "Austria", "country_code": "AT", "country_tel_code": "+43"},
+    {"country_name": "Azerbaijan", "country_code": "AZ", "country_tel_code": "+994"},
+    {"country_name": "Bahamas", "country_code": "BS", "country_tel_code": "+1-242"},
+    {"country_name": "Bahrain", "country_code": "BH", "country_tel_code": "+973"},
+    {"country_name": "Bangladesh", "country_code": "BD", "country_tel_code": "+880"},
+    {"country_name": "Barbados", "country_code": "BB", "country_tel_code": "+1-246"},
+    {"country_name": "Belarus", "country_code": "BY", "country_tel_code": "+375"},
+    {"country_name": "Belgium", "country_code": "BE", "country_tel_code": "+32"},
+    {"country_name": "Belize", "country_code": "BZ", "country_tel_code": "+501"},
+    {"country_name": "Benin", "country_code": "BJ", "country_tel_code": "+229"},
+    {"country_name": "Bhutan", "country_code": "BT", "country_tel_code": "+975"},
+    {"country_name": "Bolivia", "country_code": "BO", "country_tel_code": "+591"},
+    {"country_name": "Bosnia and Herzegovina", "country_code": "BA", "country_tel_code": "+387"},
+    {"country_name": "Botswana", "country_code": "BW", "country_tel_code": "+267"},
+    {"country_name": "Brazil", "country_code": "BR", "country_tel_code": "+55"},
+    {"country_name": "Brunei", "country_code": "BN", "country_tel_code": "+673"},
+    {"country_name": "Bulgaria", "country_code": "BG", "country_tel_code": "+359"},
+    {"country_name": "Burkina Faso", "country_code": "BF", "country_tel_code": "+226"},
+    {"country_name": "Burundi", "country_code": "BI", "country_tel_code": "+257"},
+    {"country_name": "Cambodia", "country_code": "KH", "country_tel_code": "+855"},
+    {"country_name": "Cameroon", "country_code": "CM", "country_tel_code": "+237"},
+    {"country_name": "Canada", "country_code": "CA", "country_tel_code": "+1"},
+    {"country_name": "Chile", "country_code": "CL", "country_tel_code": "+56"},
+    {"country_name": "China", "country_code": "CN", "country_tel_code": "+86"},
+    {"country_name": "Colombia", "country_code": "CO", "country_tel_code": "+57"},
+    {"country_name": "Costa Rica", "country_code": "CR", "country_tel_code": "+506"},
+    {"country_name": "Croatia", "country_code": "HR", "country_tel_code": "+385"},
+    {"country_name": "Cuba", "country_code": "CU", "country_tel_code": "+53"},
+    {"country_name": "Cyprus", "country_code": "CY", "country_tel_code": "+357"},
+    {"country_name": "Czech Republic", "country_code": "CZ", "country_tel_code": "+420"},
+    {"country_name": "Denmark", "country_code": "DK", "country_tel_code": "+45"},
+    {"country_name": "Dominican Republic", "country_code": "DO", "country_tel_code": "+1-809"},
+    {"country_name": "Ecuador", "country_code": "EC", "country_tel_code": "+593"},
+    {"country_name": "Egypt", "country_code": "EG", "country_tel_code": "+20"},
+    {"country_name": "El Salvador", "country_code": "SV", "country_tel_code": "+503"},
+    {"country_name": "Estonia", "country_code": "EE", "country_tel_code": "+372"},
+    {"country_name": "Ethiopia", "country_code": "ET", "country_tel_code": "+251"},
+    {"country_name": "Finland", "country_code": "FI", "country_tel_code": "+358"},
+    {"country_name": "France", "country_code": "FR", "country_tel_code": "+33"},
+    {"country_name": "Germany", "country_code": "DE", "country_tel_code": "+49"},
+    {"country_name": "Ghana", "country_code": "GH", "country_tel_code": "+233"},
+    {"country_name": "Greece", "country_code": "GR", "country_tel_code": "+30"},
+    {"country_name": "Hong Kong", "country_code": "HK", "country_tel_code": "+852"},
+    {"country_name": "Hungary", "country_code": "HU", "country_tel_code": "+36"},
+    {"country_name": "Iceland", "country_code": "IS", "country_tel_code": "+354"},
+    {"country_name": "India", "country_code": "IN", "country_tel_code": "+91"},
+    {"country_name": "Indonesia", "country_code": "ID", "country_tel_code": "+62"},
+    {"country_name": "Iran", "country_code": "IR", "country_tel_code": "+98"},
+    {"country_name": "Iraq", "country_code": "IQ", "country_tel_code": "+964"},
+    {"country_name": "Ireland", "country_code": "IE", "country_tel_code": "+353"},
+    {"country_name": "Israel", "country_code": "IL", "country_tel_code": "+972"},
+    {"country_name": "Italy", "country_code": "IT", "country_tel_code": "+39"},
+    {"country_name": "Japan", "country_code": "JP", "country_tel_code": "+81"},
+    {"country_name": "Kenya", "country_code": "KE", "country_tel_code": "+254"},
+    {"country_name": "Kuwait", "country_code": "KW", "country_tel_code": "+965"},
+    {"country_name": "Malaysia", "country_code": "MY", "country_tel_code": "+60"},
+    {"country_name": "Maldives", "country_code": "MV", "country_tel_code": "+960"},
+    {"country_name": "Mexico", "country_code": "MX", "country_tel_code": "+52"},
+    {"country_name": "Nepal", "country_code": "NP", "country_tel_code": "+977"},
+    {"country_name": "Netherlands", "country_code": "NL", "country_tel_code": "+31"},
+    {"country_name": "New Zealand", "country_code": "NZ", "country_tel_code": "+64"},
+    {"country_name": "Nigeria", "country_code": "NG", "country_tel_code": "+234"},
+    {"country_name": "Norway", "country_code": "NO", "country_tel_code": "+47"},
+    {"country_name": "Pakistan", "country_code": "PK", "country_tel_code": "+92"},
+    {"country_name": "Philippines", "country_code": "PH", "country_tel_code": "+63"},
+    {"country_name": "Poland", "country_code": "PL", "country_tel_code": "+48"},
+    {"country_name": "Portugal", "country_code": "PT", "country_tel_code": "+351"},
+    {"country_name": "Qatar", "country_code": "QA", "country_tel_code": "+974"},
+    {"country_name": "Romania", "country_code": "RO", "country_tel_code": "+40"},
+    {"country_name": "Russia", "country_code": "RU", "country_tel_code": "+7"},
+    {"country_name": "Saudi Arabia", "country_code": "SA", "country_tel_code": "+966"},
+    {"country_name": "Singapore", "country_code": "SG", "country_tel_code": "+65"},
+    {"country_name": "South Africa", "country_code": "ZA", "country_tel_code": "+27"},
+    {"country_name": "South Korea", "country_code": "KR", "country_tel_code": "+82"},
+    {"country_name": "Spain", "country_code": "ES", "country_tel_code": "+34"},
+    {"country_name": "Sri Lanka", "country_code": "LK", "country_tel_code": "+94"},
+    {"country_name": "Sweden", "country_code": "SE", "country_tel_code": "+46"},
+    {"country_name": "Switzerland", "country_code": "CH", "country_tel_code": "+41"},
+    {"country_name": "Thailand", "country_code": "TH", "country_tel_code": "+66"},
+    {"country_name": "Turkey", "country_code": "TR", "country_tel_code": "+90"},
+    {"country_name": "United Arab Emirates", "country_code": "AE", "country_tel_code": "+971"},
+    {"country_name": "United Kingdom", "country_code": "GB", "country_tel_code": "+44"},
+    {"country_name": "United States", "country_code": "US", "country_tel_code": "+1"},
+    {"country_name": "Vietnam", "country_code": "VN", "country_tel_code": "+84"},
+    {"country_name": "Zimbabwe", "country_code": "ZW", "country_tel_code": "+263"},
+]
+
+
+class Command(BaseCommand):
+    help = "Seeds the country table with initial data"
+
+    def handle(self, *args, **options):
+        for c in COUNTRIES:
+            obj, created = Country.objects.get_or_create(
+                code=c["code"], defaults={"name": c["name"]}
+            )
+
+            if created:
+                self.stdout.write(self.style.SUCCESS(f"Added{c['name']}"))
+            else:
+                self.stdout.write(f"{c['name']} Already exits")
+
+        self.stdout.write(self.style.SUCCESS("✅ Countries seeding complete."))
