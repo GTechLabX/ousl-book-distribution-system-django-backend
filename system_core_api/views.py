@@ -1,9 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
-from auth_sys.serializers.register_serializer import *
 from events.signals import *
 
 
@@ -23,7 +20,7 @@ class RegisterAPIView(APIView):
         # return whatever the dispatch system send back
 
         if response_holder.get("success"):
-            return Response(response_holder, status=status.HTTP_201_CREATED)
+            return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
@@ -41,12 +38,33 @@ class LoginAPIView(APIView):
             data=request.data,
             callback=callback
         )
-        # return whatever the dispatch system send back
+        # return whatever the auth system send back
 
         if response_holder.get("success"):
             return Response(response_holder, status=status.HTTP_201_CREATED)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PasswordResetRequestAPIView(APIView):
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # publish request data
+        user_password_reset_requested.send(
+            self.__class__,
+            data=request.data,
+            callback=callback
+
+        )
+        # return whatever the auth system send back
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_404_NOT_FOUND)
 
 
 class StudentRegAPIView(APIView):
