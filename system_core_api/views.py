@@ -4,6 +4,7 @@ from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers.register_serializer import *
+from events.signals import student_registration_requested
 
 
 class LoginAPIView(APIView):
@@ -52,4 +53,22 @@ class RegisterAPIView(APIView):
 
 
 class StudentRegAPIView(APIView):
-    pass
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # publish raw request data
+        student_registration_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        # return whatever the dispatch system send back
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
