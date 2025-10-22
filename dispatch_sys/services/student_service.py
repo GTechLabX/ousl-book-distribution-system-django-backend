@@ -1,4 +1,4 @@
-from dispatch_sys.serializers import StudentSerializer
+from dispatch_sys.serializers.student_reg_serializers import StudentSerializer
 
 
 def register_student(data):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models import Student
+from dispatch_sys.models import Student
 
 
 class StudentSerializer(serializers.ModelSerializer):
