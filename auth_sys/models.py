@@ -52,7 +52,7 @@ class SecurityInformation(models.Model):
 
 class UserPreference(models.Model):
     language = models.CharField(db_column="Language", default="en", max_length=50)
-    theme = models.IntegerField(db_column="Them", null=True, blank=True)
+    theme = models.IntegerField(db_column="Theme", null=True, blank=True)
     time_zone = models.CharField(db_column="Time_Zone", null=True, default=True, max_length=100)
     notification_Preference = models.CharField(db_column="Notification_Preference", null=True, default=True,
                                                max_length=100)

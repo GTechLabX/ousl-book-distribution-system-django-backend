@@ -4,7 +4,7 @@ from . import views
 app_name = 'auth_sys'
 
 urlpatterns = [
-    path('', views.login, name="login"),
-    path('', views.registration, name="registration")
+    # path('login/', views.login, name="login"),
+    # path('register/', views.registration, name="registration")
 ]
 

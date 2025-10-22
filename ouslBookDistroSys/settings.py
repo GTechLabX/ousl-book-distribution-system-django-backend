@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'auth_sys.apps.AuthsysConfig',
     'system_core_api.apps.SystemCoreApiConfig',
     'dispatch_sys.apps.DispatchSysConfig',
+    'events.apps.EventsConfig',
     'rest_framework',
 ]
 
