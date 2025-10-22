@@ -4,3 +4,4 @@ from django.dispatch import Signal
 
 student_registration_requested = Signal()
 user_login_requested = Signal()
+user_register_requested = Signal()
