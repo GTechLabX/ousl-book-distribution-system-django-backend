@@ -1,7 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
-
-
 from auth_sys.serializers.password_reset_serializer import PasswordResetRequestSerializer
 
 

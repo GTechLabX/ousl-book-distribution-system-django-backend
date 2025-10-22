@@ -53,7 +53,7 @@ class PasswordResetRequestAPIView(APIView):
         def callback(result):
             response_holder.update(result)
 
-        # publish request data
+        # send raw request data
         user_password_reset_requested.send(
             self.__class__,
             data=request.data,
@@ -65,6 +65,27 @@ class PasswordResetRequestAPIView(APIView):
             return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_404_NOT_FOUND)
+
+
+class PasswordResetConfirmAPIView(APIView):
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # sent raw data to the
+        user_password_reset_confirm_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+        )
+
+        # send whatever that auth system return
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
 class StudentRegAPIView(APIView):
