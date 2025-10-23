@@ -10,8 +10,6 @@ urlpatterns = [
     path('password_reset/', views.PasswordResetRequestAPIView.as_view(), name='password_reset'),
     path('password_reset_confirm/', views.PasswordResetConfirmAPIView.as_view(), name='password_reset_confirm'),
 
-
-
     # API Endpoints for Dispatch-System
 
     path('student/', views.AllStudentAPIView.as_view(), name='all_student_api'),
