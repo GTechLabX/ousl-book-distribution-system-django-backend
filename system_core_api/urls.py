@@ -14,5 +14,8 @@ urlpatterns = [
 
     # API Endpoints for Dispatch-System
 
-    path('student_register/', views.StudentRegAPIView.as_view(), name='student_register_api')
+    path('student/', views.AllStudentAPIView.as_view(), name='all_student_api'),
+    path('student/<int:pk>/', views.StudentAPIView.as_view(), name='student_api'),
+    path('student_register/', views.StudentRegAPIView.as_view(), name='student_register_api'),
+    path('student/<int:pk>/update/', views.StudentUpdateAPIView.as_view(), name='student_update_api')
 ]

@@ -1,10 +1,23 @@
+from dispatch_sys.models import Student
 from dispatch_sys.serializers.student_reg_serializers import StudentSerializer
 
 
-def register_student(sender, data, callback, **kwargs):
-    serializer = StudentSerializer(data=data)
-    if serializer.is_valid():
-        student = serializer.save()
-        return {"success": True, "student_id": student.id}
-    return {"success": False, "errors": serializer.errors}
+def student_service(sender, data, callback, pk, **kwargs):
+    try:
+        student = Student.objects.get(pk=pk)
+    except Student.DoesNotExist as e:
+        return callback(
+            {
+                "success": False,
+                "errors": str(e)
+            }
+        )
+    serializer = StudentSerializer(student)
+
+    return callback(
+        {
+            "success": True,
+            "message": serializer.data
+        }
+    )
 

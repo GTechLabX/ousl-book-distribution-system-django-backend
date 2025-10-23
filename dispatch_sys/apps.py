@@ -7,6 +7,6 @@ class DispatchSysConfig(AppConfig):
 
     def ready(self):
         from events.signals import student_registration_requested
-        from .services.student_service import register_student
+        from .services.student_reg_service import register_student
 
         student_registration_requested.connect(register_student)
