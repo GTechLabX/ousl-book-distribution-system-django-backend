@@ -1,6 +1,7 @@
 from django.dispatch import receiver
 
 from dispatch_sys.services.student_all_service import student_all_service
+from dispatch_sys.services.student_delete_service import student_delete_service
 from dispatch_sys.services.student_service import student_service
 from dispatch_sys.services.student_update_service import student_update_service
 from events.signals import student_registration_requested, student_update_requested, student_requested, \
@@ -23,9 +24,9 @@ def handle_student_update(sender, data, callback, pk, **kwargs):
 
 
 @receiver(student_all_requested)
-def handle_all_student(sender, data, callback, **kwargs):
+def handle_all_student(sender, callback, **kwargs):
     # send the data to the student update function
-    result = student_all_service(sender=sender, data=data, callback=callback)
+    result = student_all_service(sender=sender, callback=callback, **kwargs)
     callback(result)
 
 
@@ -33,4 +34,11 @@ def handle_all_student(sender, data, callback, **kwargs):
 def handle_student(sender, data, callback, pk, **kwargs):
     # send the data to the student update function
     result = student_service(sender=sender, data=data, callback=callback, pk=pk)
+    callback(result)
+
+
+@receiver(student_requested)
+def handle_student_delete(sender, callback, pk, **kwargs):
+    # send the data to the student update function
+    result = student_delete_service(sender=sender, callback=callback, pk=pk)
     callback(result)

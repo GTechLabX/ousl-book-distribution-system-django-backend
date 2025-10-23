@@ -3,6 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from events.signals import *
 
 
@@ -115,7 +117,7 @@ class StudentRegAPIView(APIView):
 
 
 class StudentUpdateAPIView(APIView):
-    authentication_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, pk):
         response_holder = {}
@@ -124,6 +126,52 @@ class StudentUpdateAPIView(APIView):
             response_holder.update(result)
 
         student_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk,
+        )
+
+        # send back to the user whatever dispatch system send
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllStudentAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # Send the signal to your listener/service
+        student_all_requested.send(
+            sender=self.__class__,
+            callback=callback,
+        )
+
+        # send back to the user whatever dispatch system send
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class StudentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        student_requested.send(
             sender=self.__class__,
             data=request,
             callback=callback,
@@ -137,38 +185,17 @@ class StudentUpdateAPIView(APIView):
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AllStudentAPIView(APIView):
-    def get(self, request):
+class StudentDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
         response_holder = {}
 
         def callback(result):
             response_holder.update(result)
 
-        student_all_requested.send(
+        student_delete_requested.send(
             sender=self.__class__,
-            data=request,
-            callback=callback,
-        )
-
-        # send back to the user whatever dispatch system send
-        if response_holder.get("success"):
-            return Response(response_holder, status=status.HTTP_200_OK)
-        else:
-            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
-
-
-class StudentAPIView(APIView):
-    authentication_classes = [IsAuthenticated]
-
-    def get(self, request, pk):
-        response_holder = {}
-
-        def callback(result):
-            response_holder.update(result)
-
-        student_requested.send(
-            sender=self.__class__,
-            data=request,
             callback=callback,
             pk=pk,
         )
