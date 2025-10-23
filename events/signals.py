@@ -12,3 +12,10 @@ student_update_requested = Signal()
 student_all_requested = Signal()
 student_requested = Signal()
 student_delete_requested = Signal()
+
+
+faculty_add_requested = Signal()
+faculty_all_show_requested = Signal()
+faculty_show_requested = Signal()
+faculty_update_requested = Signal()
+faculty_delete_requested = Signal()

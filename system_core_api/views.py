@@ -1,4 +1,3 @@
-from django.contrib.auth.decorators import login_required
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -201,6 +200,114 @@ class StudentDeleteAPIView(APIView):
         )
 
         # send back to the user whatever dispatch system send
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllFacultiesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        faculty_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+        # send back to the user whatever dispatch system send
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddFacultyAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        faculty_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+        # send back to the user whatever dispatch system send
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FacultyAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        faculty_show_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateFacultyAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        faculty_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteFacultyAPIView:
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        faculty_delete_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
         if response_holder.get("success"):
             return Response(response_holder, status=status.HTTP_200_OK)
         else:
