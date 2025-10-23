@@ -21,7 +21,8 @@ def login_service(sender, data, callback, **kwargs):
             "success": True,
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-            "username": user.username
+            "username": user.username,
+
         })
     else:
         callback({

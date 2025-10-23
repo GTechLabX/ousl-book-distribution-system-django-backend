@@ -36,7 +36,7 @@ class Center(models.Model):
 
 class Student(models.Model):
     student_name = models.CharField(max_length=500, name="student_name")
-    nic = models.CharField(max_length=15, name="nic", null=False)
+    nic = models.CharField(max_length=15, name="nic", null=False, unique=True)
     s_no = models.CharField(max_length=15, name="s_no")
     reg_no = models.CharField(max_length=15, name="reg_no")
 
