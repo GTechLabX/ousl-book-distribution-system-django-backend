@@ -292,7 +292,7 @@ class UpdateFacultyAPIView(APIView):
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
-class DeleteFacultyAPIView:
+class DeleteFacultyAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):

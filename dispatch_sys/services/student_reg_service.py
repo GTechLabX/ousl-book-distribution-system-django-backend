@@ -11,4 +11,3 @@ def register_student(sender, data, callback, **kwargs):
     return callback(
         {"success": False, "errors": serializer.errors}
     )
-
