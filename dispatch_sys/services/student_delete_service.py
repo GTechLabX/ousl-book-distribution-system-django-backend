@@ -11,7 +11,7 @@ def student_delete_service(sender, callback, pk, **kwargs):
             "errors": f"Student with id {pk} does not exist"
         })
 
-    # Optional: serialize before deletion if you want to return data
+    # serialize before deletion if you want to return data
     serializer = StudentSerializer(student)
     student.delete()  # deletes the record
 
