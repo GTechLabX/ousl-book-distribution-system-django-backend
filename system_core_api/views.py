@@ -312,3 +312,110 @@ class DeleteFacultyAPIView(APIView):
             return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllDepartmentsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        department_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DepartmentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        department_show_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddDepartmentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        department_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateDepartmentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        department_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteDepartmentAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        department_delete_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)

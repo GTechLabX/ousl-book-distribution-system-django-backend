@@ -24,5 +24,14 @@ urlpatterns = [
     path('faculties/<int:pk>/', views.FacultyAPIView.as_view(), name="faculty_api"),
     path('add_faculty/', views.AddFacultyAPIView.as_view(), name="add_faculty_api"),
     path('faculty/<int:pk>/update', views.UpdateFacultyAPIView.as_view(), name="update_faculty_api"),
-    path('faculty/delete/<int:pk>', views.DeleteFacultyAPIView.as_view(), name="delete_faculty_api")
+    path('faculty/delete/<int:pk>', views.DeleteFacultyAPIView.as_view(), name="delete_faculty_api"),
+
+    # API Endpoints for Department Management
+
+    path('departments/', views.AllDepartmentsAPIView.as_view(), name="all_departments_api"),
+    path('departments/<int:pk>/', views.DepartmentAPIView.as_view(), name="department_api"),
+    path('add_department/', views.AddDepartmentAPIView.as_view(), name="add_department_api"),
+    path('department/<int:pk>/update', views.UpdateDepartmentAPIView.as_view(), name="update_department_api"),
+    path('department/delete/<int:pk>', views.DeleteDepartmentAPIView.as_view(), name="delete_department_api"),
+
 ]
