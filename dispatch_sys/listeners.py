@@ -11,7 +11,8 @@ from dispatch_sys.services.student_service import student_service
 from dispatch_sys.services.student_update_service import student_update_service
 from events.signals import student_registration_requested, student_update_requested, student_requested, \
     student_all_requested, student_delete_requested, faculty_add_requested, faculty_all_show_requested, \
-    faculty_show_requested, faculty_update_requested, faculty_delete_requested
+    faculty_show_requested, faculty_update_requested, faculty_delete_requested, department_add_requested, \
+    department_all_show_requested, department_show_requested, department_update_requested, department_delete_requested
 from services.student_reg_service import register_student
 
 
@@ -84,4 +85,37 @@ def handle_faculty_update(sender, callback, pk, **kwargs):
 def handle_faculty_delete(sender, callback, pk, **kwargs):
     # send the data to the student update function
     result = faculty_delete_service(sender=sender, callback=callback, pk=pk, **kwargs)
+    callback(result)
+
+
+# -------------------------------------------------------->>>>>>>>>>>>>>>
+
+
+@receiver(department_add_requested)
+def handle_department_add(sender, data, callback, **kwargs):
+    result = department_add_service(sender=sender, data=data, callback=callback, **kwargs)
+    callback(result)
+
+
+@receiver(department_all_show_requested)
+def handle_department_all_show(sender, callback, **kwargs):
+    result = department_all_service(sender=sender, callback=callback, **kwargs)
+    callback(result)
+
+
+@receiver(department_show_requested)
+def handle_department_show(sender, callback, pk, **kwargs):
+    result = department_show_service(sender=sender, callback=callback, pk=pk, **kwargs)
+    callback(result)
+
+
+@receiver(department_update_requested)
+def handle_department_update(sender, callback, pk, **kwargs):
+    result = department_update_service(sender=sender, callback=callback, pk=pk, **kwargs)
+    callback(result)
+
+
+@receiver(department_delete_requested)
+def handle_department_delete(sender, callback, pk, **kwargs):
+    result = department_delete_service(sender=sender, callback=callback, pk=pk, **kwargs)
     callback(result)
