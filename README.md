@@ -87,3 +87,43 @@ Visit **[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)** to access
 happy coding...................................:)
 
 
+
+
+
+
+
+
+---
+
+### 🔹 New Unique Features
+
+1. **Book Reservation**
+
+   * Students can reserve books online before visiting the center, reducing queues and ensuring availability.
+
+2. **Automated Notifications**
+
+   * Sends email/SMS alerts for:
+
+     * Book issue confirmation
+     * Request approval
+     * Low stock alerts
+
+3. **Request Status Tracking**
+
+   * Students can view the status of their book requests: “Pending,” “Approved,” or “Ready for Collection.”
+
+4. **QR Code Scanning for Books**
+
+   * Staff can scan QR codes to:
+
+     * Check book details
+     * Update inventory
+     * Record issuing transactions instantly
+
+5. **Feedback & Issue Reporting**
+
+   * Students and staff can report issues or give feedback on books (e.g., damaged books, wrong issuance, delays)
+   * Admin can review and take action
+
+
