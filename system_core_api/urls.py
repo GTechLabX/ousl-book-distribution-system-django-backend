@@ -34,4 +34,5 @@ urlpatterns = [
     path('department/<int:pk>/update', views.UpdateDepartmentAPIView.as_view(), name="update_department_api"),
     path('department/delete/<int:pk>', views.DeleteDepartmentAPIView.as_view(), name="delete_department_api"),
 
+    path('test/', views.TestAPI.as_view(), name="testapi")
 ]

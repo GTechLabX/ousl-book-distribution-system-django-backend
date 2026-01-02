@@ -227,6 +227,7 @@ class AllFacultiesAPIView(APIView):
 
 
 class AddFacultyAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -241,7 +242,7 @@ class AddFacultyAPIView(APIView):
             callback=callback
         )
         # send back to the user whatever dispatch system send
-
+        print(response_holder)
         if response_holder.get("success"):
             return Response(response_holder, status=status.HTTP_201_CREATED)
         else:
@@ -316,6 +317,7 @@ class DeleteFacultyAPIView(APIView):
 
 class AllDepartmentsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         response_holder = {}
@@ -413,6 +415,27 @@ class DeleteDepartmentAPIView(APIView):
             data=request.data,
             callback=callback,
             pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TestAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        testAPI.send(
+            sender=self.__class__,
+            callback=callback,
+
         )
 
         if response_holder.get("success"):
