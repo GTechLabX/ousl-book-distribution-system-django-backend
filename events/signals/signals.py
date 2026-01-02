@@ -16,18 +16,8 @@ student_requested = Signal()
 student_delete_requested = Signal()
 
 
-faculty_add_requested = Signal()
-faculty_all_show_requested = Signal()
-faculty_show_requested = Signal()
-faculty_update_requested = Signal()
-faculty_delete_requested = Signal()
 
 
-department_add_requested = Signal()
-department_all_show_requested = Signal()
-department_show_requested = Signal()
-department_update_requested = Signal()
-department_delete_requested = Signal()
 
 
 
