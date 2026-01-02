@@ -67,7 +67,6 @@ class DegreeProgram(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=150)
-
     course_code = models.CharField(max_length=30, unique=True)
 
     additional_info = models.TextField(blank=True, null=True)

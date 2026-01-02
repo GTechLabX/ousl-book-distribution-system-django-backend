@@ -9,7 +9,7 @@ from dispatch_sys.services.student_all_service import student_all_service
 from dispatch_sys.services.student_delete_service import student_delete_service
 from dispatch_sys.services.student_service import student_service
 from dispatch_sys.services.student_update_service import student_update_service
-from events.signals import student_registration_requested, student_update_requested, student_requested, \
+from events.signals.signals import student_registration_requested, student_update_requested, student_requested, \
     student_all_requested, student_delete_requested, faculty_add_requested, faculty_all_show_requested, \
     faculty_show_requested, faculty_update_requested, faculty_delete_requested, department_add_requested, \
     department_all_show_requested, department_show_requested, department_update_requested, department_delete_requested
