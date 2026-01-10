@@ -22,7 +22,6 @@ def student_service(sender, data, callback, pk, **kwargs):
     )
 
 
-
 def register_student(sender, data, callback, **kwargs):
     serializer = StudentSerializer(data=data)
     if serializer.is_valid(raise_exception=True):
@@ -33,6 +32,7 @@ def register_student(sender, data, callback, **kwargs):
     return callback(
         {"success": False, "errors": serializer.errors}
     )
+
 
 def student_delete_service(sender, callback, pk, **kwargs):
     try:
@@ -52,6 +52,7 @@ def student_delete_service(sender, callback, pk, **kwargs):
         "message": "Student deleted successfully",
         "deleted_student": serializer.data  # returns deleted data
     })
+
 
 def student_all_service(sender, callback, **kwargs):
     student = Student.objects.all()

@@ -34,5 +34,27 @@ urlpatterns = [
     path('department/<int:pk>/update', views.UpdateDepartmentAPIView.as_view(), name="update_department_api"),
     path('department/delete/<int:pk>', views.DeleteDepartmentAPIView.as_view(), name="delete_department_api"),
 
+
+    path('degree-programs/', views.AllDegreeProgramsAPIView.as_view(), name="all_degree_programs_api"),
+    path('degree-program/<int:pk>/', views.DegreeProgramAPIView.as_view(), name="degree_program_api"),
+    path('degree-program/add/', views.AddDegreeProgramAPIView.as_view(), name="add_degree_program_api"),
+    path('degree-program/update/<int:pk>/', views.UpdateDegreeProgramAPIView.as_view(), name="update_degree_program_api"),
+    path('degree-program/delete/<int:pk>/', views.DeleteDegreeProgramAPIView.as_view(), name="delete_degree_program_api"),
+
+
+    path('courses/', views.AllCoursesAPIView.as_view(), name="all_courses_api"),
+    path('course/<int:pk>/', views.CourseAPIView.as_view(), name="course_api"),
+    path('course/add/', views.AddCourseAPIView.as_view(), name="add_course_api"),
+    path('course/update/<int:pk>/', views.UpdateCourseAPIView.as_view(), name="update_course_api"),
+    path('course/delete/<int:pk>/', views.DeleteCourseAPIView.as_view(), name="delete_course_api"),
+
+
+    path('books/', views.AllBooksAPIView.as_view(), name="all_books_api"),
+    path('book/<int:pk>/', views.BookAPIView.as_view(), name="book_api"),
+    path('book/add/', views.AddBookAPIView.as_view(), name="add_book_api"),
+    path('book/update/<int:pk>/', views.UpdateBookAPIView.as_view(), name="update_book_api"),
+    path('book/delete/<int:pk>/', views.DeleteBookAPIView.as_view(), name="delete_book_api"),
+
+
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]

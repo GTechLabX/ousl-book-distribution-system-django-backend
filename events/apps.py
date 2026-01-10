@@ -8,3 +8,4 @@ class EventsConfig(AppConfig):
     def ready(self):
         import events.signals.district_signal
         import events.signals.signals
+        import events.signals.student_qr_signals

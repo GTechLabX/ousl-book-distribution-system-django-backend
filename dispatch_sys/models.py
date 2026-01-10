@@ -234,3 +234,19 @@ class ReceivedBook(models.Model):
 
     def __str__(self):
         return f"Received: {self.is_received} on {self.date} at {self.time}"
+
+
+# QR Code model
+class StudentQRCode(models.Model):
+    student = models.OneToOneField(
+        Student,
+        on_delete=models.CASCADE,
+        related_name="qr_code"
+    )
+    qr_image = models.ImageField(upload_to='student_qr_codes/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"QR Code for {self.student.student_name}"
+
+    

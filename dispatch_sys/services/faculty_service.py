@@ -20,19 +20,12 @@ def faculty_add_service(data, callback, **kwargs):
 
 def faculty_all_service(sender, callback, **kwargs):
     faculties = Faculty.objects.all()
-    serializer = FacultySerializer(data=faculties)
-    if serializer.is_valid(raise_exception=True):
-        return callback(
-            {
-                "success": True,
-                "data": serializer.data
-            }
-        )
+    serializer = FacultySerializer(faculties, many=True)
 
     return callback(
         {
-            "success": False,
-            "errors": serializer.errors
+            "success": True,
+            "data": serializer.data
         }
     )
 
