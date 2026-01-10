@@ -134,6 +134,7 @@ class Student(models.Model):
     nic = models.CharField(max_length=15, name="nic", null=False, unique=True)
     s_no = models.CharField(max_length=15, name="s_no")
     reg_no = models.CharField(max_length=15, name="reg_no")
+    email = models.EmailField(name="email", default='none')
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='student_district')
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='student_center')
     degree_program = models.ForeignKey("DegreeProgram", on_delete=models.CASCADE, related_name="student_degree")

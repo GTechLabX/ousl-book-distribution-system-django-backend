@@ -6,6 +6,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from events.signals.degree_program_signals import degree_program_all_show_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_add_requested, degree_program_show_requested
+from events.signals.qr_signals import student_qr_scan_requested
 from events.signals.signals import *
 from events.signals.faculty_signals import *
 from events.signals.department_signals import *
@@ -927,3 +928,34 @@ class TestAPI(APIView):
             return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ScanQRAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if "qr_image" not in request.FILES:
+            return Response({"error": "QR image required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        qr_image = request.FILES["qr_image"]
+
+        # Prepare a response holder for the callback
+        response_holder = {}
+
+        # Define the callback function that signal will call
+        def callback(result):
+            response_holder.update(result)
+
+        # Send signal to handle QR scan
+        student_qr_scan_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            qr_image=qr_image
+        )
+
+        # Return response based on callback
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )

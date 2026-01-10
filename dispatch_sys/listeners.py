@@ -26,6 +26,7 @@ from events.signals.degree_program_course_signals import degree_program_course_d
     degree_program_course_all_show_requested, degree_program_course_add_requested
 from events.signals.degree_program_signals import degree_program_add_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_show_requested, degree_program_all_show_requested
+from events.signals.qr_signals import student_qr_scan_requested
 from events.signals.signals import student_registration_requested, student_update_requested, \
     student_all_requested, student_requested, student_delete_requested, testAPI
 from events.signals.faculty_signals import *
@@ -322,7 +323,18 @@ def handle_degree_program_course_delete(sender, callback, pk, **kwargs):
     callback(result)
 
 
-# -------------------------------------------------------->>>>>>>>>>>>>>>
+# ------------------------QR SCANNER-------------------------------->>>>>>>>>>>>>>>
+
+@receiver(student_qr_scan_requested)
+def handle_student_qr_scan(sender, callback, qr_image, **kwargs):
+    """
+    Signal handler for student QR scan.
+    Delegates logic to dispatch service, then calls callback with result.
+    """
+    result = get_student_from_qr_service(qr_image)
+    callback(result)
+
+
 # -------------------------------------------------------->>>>>>>>>>>>>>>
 
 
