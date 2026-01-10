@@ -55,6 +55,11 @@ urlpatterns = [
     path('book/update/<int:pk>/', views.UpdateBookAPIView.as_view(), name="update_book_api"),
     path('book/delete/<int:pk>/', views.DeleteBookAPIView.as_view(), name="delete_book_api"),
 
+    path('centers/', views.AllCentersAPIView.as_view(), name="all_centers_api"),
+    path('center/<int:pk>/', views.CenterAPIView.as_view(), name="center_api"),
+    path('center/add/', views.AddCenterAPIView.as_view(), name="add_center_api"),
+    path('center/update/<int:pk>/', views.UpdateCenterAPIView.as_view(), name="update_center_api"),
+    path('center/delete/<int:pk>/', views.DeleteCenterAPIView.as_view(), name="delete_center_api"),
 
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]

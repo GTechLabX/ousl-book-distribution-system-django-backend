@@ -39,6 +39,14 @@ class DispatchSysConfig(AppConfig):
         from events.signals.book_signals import book_update_requested, book_add_requested, book_show_requested, \
             book_delete_requested, book_all_show_requested
 
+        from dispatch_sys.services.center_services import center_update_service, center_show_service, \
+            center_add_service, \
+            center_delete_service, center_all_service
+        from events.signals.center_signals import center_update_requested, center_add_requested, \
+            center_delete_requested, \
+            center_all_show_requested, center_show_requested
+
+
         student_registration_requested.connect(register_student)
         student_requested.connect(student_service)
         student_update_requested.connect(student_update_service)
@@ -74,3 +82,9 @@ class DispatchSysConfig(AppConfig):
         book_add_requested.connect(book_add_service)
         book_delete_requested.connect(book_delete_service)
         book_all_show_requested.connect(book_all_service)
+
+        center_update_requested.connect(center_update_service)
+        center_show_requested.connect(center_show_service)
+        center_add_requested.connect(center_add_service)
+        center_delete_requested.connect(center_delete_service)
+        center_all_show_requested.connect(center_all_service)

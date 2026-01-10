@@ -2,6 +2,8 @@ from django.dispatch import receiver
 
 from dispatch_sys.services.book_services import book_delete_service, book_update_service, book_show_service, \
     book_all_service, book_add_service
+from dispatch_sys.services.center_services import center_delete_service, center_update_service, center_show_service, \
+    center_add_service, center_all_service
 from dispatch_sys.services.course_services import course_add_service, course_all_service, course_show_service, \
     course_update_service, course_delete_service
 from dispatch_sys.services.degree_program_service import degree_program_add_service, degree_program_delete_service, \
@@ -12,6 +14,8 @@ from dispatch_sys.services.student_service import *
 from dispatch_sys.services.test_service import test_service
 from events.signals.book_signals import book_delete_requested, book_update_requested, book_show_requested, \
     book_all_show_requested, book_add_requested
+from events.signals.center_signals import center_delete_requested, center_update_requested, center_show_requested, \
+    center_add_requested, center_all_show_requested
 from events.signals.course_signals import course_add_requested, course_all_show_requested, course_show_requested, \
     course_update_requested, course_delete_requested
 from events.signals.degree_program_signals import degree_program_add_requested, degree_program_delete_requested, \
@@ -220,30 +224,66 @@ def handle_course_delete(sender, callback, pk, **kwargs):
 
 @receiver(book_add_requested)
 def handle_book_add(sender, data, callback, **kwargs):
-    callback(book_add_service(sender, data, callback, **kwargs))
+    result = book_add_service(sender, data, callback, **kwargs)
+    callback(result)
 
 
 @receiver(book_all_show_requested)
 def handle_book_all(sender, callback, **kwargs):
-    callback(book_all_service(sender, callback, **kwargs))
+    result = book_all_service(sender, callback, **kwargs)
+    callback(result)
 
 
 @receiver(book_show_requested)
 def handle_book_show(sender, callback, pk, **kwargs):
-    callback(book_show_service(sender, callback, pk, **kwargs))
+    result = book_show_service(sender, callback, pk, **kwargs)
+    callback(result)
 
 
 @receiver(book_update_requested)
 def handle_book_update(sender, data, callback, pk, **kwargs):
-    callback(book_update_service(sender, data, callback, pk, **kwargs))
+    result = book_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
 
 
 @receiver(book_delete_requested)
 def handle_book_delete(sender, callback, pk, **kwargs):
-    callback(book_delete_service(sender, callback, pk, **kwargs))
+    result = book_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
 
 
 # -------------------------------------------------------->>>>>>>>>>>>>>>
+
+@receiver(center_add_requested)
+def handle_center_add(sender, data, callback, **kwargs):
+    result = center_add_service(sender, data, callback, **kwargs)
+    callback(result)
+
+
+@receiver(center_all_show_requested)
+def handle_center_all(sender, callback, **kwargs):
+    result = center_all_service(sender, callback, **kwargs)
+    callback(result)
+
+
+@receiver(center_show_requested)
+def handle_center_show(sender, callback, pk, **kwargs):
+    result = center_show_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(center_update_requested)
+def handle_center_update(sender, data, callback, pk, **kwargs):
+    result = center_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(center_delete_requested)
+def handle_center_delete(sender, callback, pk, **kwargs):
+    result = center_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
 # -------------------------------------------------------->>>>>>>>>>>>>>>
 # -------------------------------------------------------->>>>>>>>>>>>>>>
 # -------------------------------------------------------->>>>>>>>>>>>>>>

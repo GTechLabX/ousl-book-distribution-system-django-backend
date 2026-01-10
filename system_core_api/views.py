@@ -11,6 +11,7 @@ from events.signals.faculty_signals import *
 from events.signals.department_signals import *
 from events.signals.course_signals import *
 from events.signals.book_signals import *
+from events.signals.center_signals import *
 
 
 class RegisterAPIView(APIView):
@@ -722,6 +723,73 @@ class DeleteBookAPIView(APIView):
 
 
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
+
+class AllCentersAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        center_all_show_requested.send(sender=self.__class__, callback=callback)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class CenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        center_show_requested.send(sender=self.__class__, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class AddCenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        center_add_requested.send(sender=self.__class__, data=request.data, callback=callback)
+        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get(
+            "success") else status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        center_update_requested.send(sender=self.__class__, data=request.data, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteCenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        center_delete_requested.send(sender=self.__class__, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
 
