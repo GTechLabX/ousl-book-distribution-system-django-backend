@@ -46,6 +46,14 @@ class DispatchSysConfig(AppConfig):
             center_delete_requested, \
             center_all_show_requested, center_show_requested
 
+        from dispatch_sys.services.degree_program_course_services import degree_program_course_update_service, \
+            degree_program_course_show_service, degree_program_course_add_service, degree_program_course_delete_service, \
+            degree_program_course_all_service
+        from events.signals.degree_program_course_signals import degree_program_course_update_requested, \
+            degree_program_course_show_requested, degree_program_course_delete_requested, \
+            degree_program_course_add_requested, \
+            degree_program_course_all_show_requested
+
 
         student_registration_requested.connect(register_student)
         student_requested.connect(student_service)
@@ -88,3 +96,9 @@ class DispatchSysConfig(AppConfig):
         center_add_requested.connect(center_add_service)
         center_delete_requested.connect(center_delete_service)
         center_all_show_requested.connect(center_all_service)
+
+        degree_program_course_update_requested.connect(degree_program_course_update_service)
+        degree_program_course_show_requested.connect(degree_program_course_show_service)
+        degree_program_course_add_requested.connect(degree_program_course_add_service)
+        degree_program_course_delete_requested.connect(degree_program_course_delete_service)
+        degree_program_course_all_show_requested.connect(degree_program_course_all_service)

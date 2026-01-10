@@ -5,14 +5,15 @@ from dispatch_sys.serializers.department_serializers import DepartmentSerializer
 def department_add_service(sender, data, callback, **kwargs):
     serializer = DepartmentSerializer(data=data)
 
-    if serializer.is_valid(raise_exception=True):
+    if serializer.is_valid():
         serializer.save()
-        callback(
+        return callback(
             {
                 "success": True,
                 "message": serializer.data
             }
         )
+
 
     return callback(
         {

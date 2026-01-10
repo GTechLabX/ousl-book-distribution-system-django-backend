@@ -56,7 +56,6 @@ class DegreeProgram(models.Model):
     d_program = models.CharField(max_length=100, name="d_program")
     additional_info = models.CharField(max_length=1000, name="info")
     department = models.ForeignKey("Department", on_delete=models.CASCADE, related_name='degree_department')
-    student = models.ForeignKey("Student", on_delete=models.CASCADE, related_name="student_degree")
 
     class Meta:
         db_table = "degree_program"
@@ -137,6 +136,7 @@ class Student(models.Model):
     reg_no = models.CharField(max_length=15, name="reg_no")
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='student_district')
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='student_center')
+    degree_program = models.ForeignKey("DegreeProgram", on_delete=models.CASCADE, related_name="student_degree")
 
     class Meta:
         db_table = "student"
@@ -249,4 +249,3 @@ class StudentQRCode(models.Model):
     def __str__(self):
         return f"QR Code for {self.student.student_name}"
 
-    

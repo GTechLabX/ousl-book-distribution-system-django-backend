@@ -12,7 +12,7 @@ from events.signals.department_signals import *
 from events.signals.course_signals import *
 from events.signals.book_signals import *
 from events.signals.center_signals import *
-
+from events.signals.degree_program_course_signals import *
 
 class RegisterAPIView(APIView):
     def post(self, request):
@@ -788,6 +788,121 @@ class DeleteCenterAPIView(APIView):
         center_delete_requested.send(sender=self.__class__, callback=callback, pk=pk)
         return Response(response_holder,
                         status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+# -------------------------------------------------->>>>>>>>>>>>>>>>>
+
+
+class AllDegreeProgramCoursesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        degree_program_course_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+class DegreeProgramCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        degree_program_course_show_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class AddDegreeProgramCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        degree_program_course_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UpdateDegreeProgramCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        degree_program_course_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class DeleteDegreeProgramCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        degree_program_course_delete_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+
 
 
 # -------------------------------------------------->>>>>>>>>>>>>>>>>

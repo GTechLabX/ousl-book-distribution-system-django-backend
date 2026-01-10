@@ -61,5 +61,14 @@ urlpatterns = [
     path('center/update/<int:pk>/', views.UpdateCenterAPIView.as_view(), name="update_center_api"),
     path('center/delete/<int:pk>/', views.DeleteCenterAPIView.as_view(), name="delete_center_api"),
 
+
+    path('degree-program-courses/', views.AllDegreeProgramCoursesAPIView.as_view(), name="all_degree_program_courses_api"),
+    path('degree-program-course/<int:pk>/', views.DegreeProgramCourseAPIView.as_view(), name="degree_program_course_api"),
+    path('degree-program-course/add/', views.AddDegreeProgramCourseAPIView.as_view(), name="add_degree_program_course_api"),
+    path('degree-program-course/update/<int:pk>/', views.UpdateDegreeProgramCourseAPIView.as_view(), name="update_degree_program_course_api"),
+    path('degree-program-course/delete/<int:pk>/', views.DeleteDegreeProgramCourseAPIView.as_view(), name="delete_degree_program_course_api"),
+
+
+
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]

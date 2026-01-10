@@ -6,6 +6,9 @@ from dispatch_sys.services.center_services import center_delete_service, center_
     center_add_service, center_all_service
 from dispatch_sys.services.course_services import course_add_service, course_all_service, course_show_service, \
     course_update_service, course_delete_service
+from dispatch_sys.services.degree_program_course_services import degree_program_course_delete_service, \
+    degree_program_course_update_service, degree_program_course_show_service, degree_program_course_all_service, \
+    degree_program_course_add_service
 from dispatch_sys.services.degree_program_service import degree_program_add_service, degree_program_delete_service, \
     degree_program_update_service, degree_program_show_service, degree_program_all_service
 from dispatch_sys.services.department_service import *
@@ -18,6 +21,9 @@ from events.signals.center_signals import center_delete_requested, center_update
     center_add_requested, center_all_show_requested
 from events.signals.course_signals import course_add_requested, course_all_show_requested, course_show_requested, \
     course_update_requested, course_delete_requested
+from events.signals.degree_program_course_signals import degree_program_course_delete_requested, \
+    degree_program_course_update_requested, degree_program_course_show_requested, \
+    degree_program_course_all_show_requested, degree_program_course_add_requested
 from events.signals.degree_program_signals import degree_program_add_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_show_requested, degree_program_all_show_requested
 from events.signals.signals import student_registration_requested, student_update_requested, \
@@ -285,14 +291,43 @@ def handle_center_delete(sender, callback, pk, **kwargs):
 
 
 # -------------------------------------------------------->>>>>>>>>>>>>>>
-# -------------------------------------------------------->>>>>>>>>>>>>>>
-# -------------------------------------------------------->>>>>>>>>>>>>>>
 
-# ------------------------
+@receiver(degree_program_course_add_requested)
+def handle_degree_program_course_add(sender, data, callback, **kwargs):
+    result = degree_program_course_add_service(sender, data, callback, **kwargs)
+    callback(result)
+
+
+@receiver(degree_program_course_all_show_requested)
+def handle_degree_program_course_all(sender, callback, **kwargs):
+    result = degree_program_course_all_service(sender, callback, **kwargs)
+    callback(result)
+
+
+@receiver(degree_program_course_show_requested)
+def handle_degree_program_course_show(sender, callback, pk, **kwargs):
+    result = degree_program_course_show_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(degree_program_course_update_requested)
+def handle_degree_program_course_update(sender, data, callback, pk, **kwargs):
+    result = degree_program_course_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(degree_program_course_delete_requested)
+def handle_degree_program_course_delete(sender, callback, pk, **kwargs):
+    result = degree_program_course_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+# -------------------------------------------------------->>>>>>>>>>>>>>>
+# -------------------------------------------------------->>>>>>>>>>>>>>>
 
 
 @receiver(testAPI)
 def testAPI_get(sender, callback, **kwargs):
     # send the data the student reg function
-    result = register_student(sender=sender, callback=callback)
+    result = register_student(sender=sender, callback=callback, **kwargs)
     callback(result)
