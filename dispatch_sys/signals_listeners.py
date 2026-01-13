@@ -389,3 +389,45 @@ received_book_all_show_requested.connect(
     dispatch_uid="received_book_all_received_book_all_service"
 )
 
+
+
+from events.signals.book_reservation_signals import (
+    book_reservation_add_requested,
+    book_reservation_update_requested,
+    book_reservation_delete_requested,
+    book_reservation_show_requested,
+    book_reservation_all_show_requested,
+)
+
+from dispatch_sys.services.book_reservation_services import (
+    book_reservation_add_service,
+    book_reservation_update_service,
+    book_reservation_delete_service,
+    book_reservation_show_service,
+    book_reservation_all_service,
+)
+
+book_reservation_add_requested.connect(
+    book_reservation_add_service,
+    dispatch_uid="book_reservation_add_service"
+)
+
+book_reservation_update_requested.connect(
+    book_reservation_update_service,
+    dispatch_uid="book_reservation_update_service"
+)
+
+book_reservation_delete_requested.connect(
+    book_reservation_delete_service,
+    dispatch_uid="book_reservation_delete_service"
+)
+
+book_reservation_show_requested.connect(
+    book_reservation_show_service,
+    dispatch_uid="book_reservation_show_service"
+)
+
+book_reservation_all_show_requested.connect(
+    book_reservation_all_service,
+    dispatch_uid="book_reservation_all_service"
+)

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import ScanQRAPIView
+
 
 urlpatterns = [
 
@@ -92,8 +92,13 @@ urlpatterns = [
     path('received-book/update/<int:pk>/', views.UpdateReceivedBookAPIView.as_view(), name="update_received_book_api"),
     path('received-book/delete/<int:pk>/', views.DeleteReceivedBookAPIView.as_view(), name="delete_received_book_api"),
 
+    path('book-reservations/', views.BookReservationListAPIView.as_view(), name="book_reservation_list_api"),
+    path('book-reservation/<int:pk>/', views.BookReservationDetailAPIView.as_view(), name="book_reservation_detail_api"),
+    path('book-reservation/add/', views.BookReservationCreateAPIView.as_view(), name="book_reservation_add_api"),
+    path('book-reservation/update/<int:pk>/', views.BookReservationUpdateAPIView.as_view(), name="book_reservation_update_api"),
+    path('book-reservation/delete/<int:pk>/', views.BookReservationDeleteAPIView.as_view(), name="book_reservation_delete_api"),
 
-    path("scan-qr/", ScanQRAPIView.as_view(), name="scan-qr"),
+    path("scan-qr/", views.ScanQRAPIView.as_view(), name="scan-qr"),
 
 
     path('test/', views.TestAPI.as_view(), name="testapi")

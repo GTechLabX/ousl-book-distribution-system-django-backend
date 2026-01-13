@@ -7,6 +7,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from auth_sys.models import CustomUser, Role
 from auth_sys.permissions import IsAdminLevel2OrAbove, IsSuperAdmin
+from events.signals.book_reservation_signals import *
 from events.signals.degree_program_signals import degree_program_all_show_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_add_requested, degree_program_show_requested
 from events.signals.qr_signals import student_qr_scan_requested
@@ -1245,3 +1246,106 @@ class DeleteReceivedBookAPIView(APIView):
 
         return Response(response_holder,
                         status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+
+class BookReservationCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BookReservationUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_update_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BookReservationDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_delete_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND
+        )
+
+
+
+
+class BookReservationDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_show_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND
+        )
+
+
+class BookReservationListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK
+        )
