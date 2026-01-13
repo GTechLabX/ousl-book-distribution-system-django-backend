@@ -5,8 +5,12 @@ from events.signals.student_acc_created_signals import student_acc_created_requi
 
 @receiver(student_acc_created_required)
 def handle_student_account_created(sender, username, email, password, **kwargs):
-    send_student_account_created_email(
-        to_email=email,
-        username=username,
-        password=password
-    )
+    try:
+        send_student_account_created_email(
+            to_email=email,
+            username=username,
+            password=password
+        )
+    except Exception as e:
+        # log error, but DO NOT break registration
+        print("Email sending failed:", str(e))
