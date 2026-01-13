@@ -5,6 +5,13 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 
+class Role(models.TextChoices):
+    SUPERADMIN = "SUPERADMIN", "Superadmin"
+    ADMIN2 = "ADMIN2", "AdminLevel2"
+    STAFF = "STAFF", "Staff"
+    STUDENT = "STUDENT", "Student"
+
+
 class CustomUser(models.Model):
     user = models.OneToOneField(User, db_column='user', on_delete=models.CASCADE)
     uuid = models.UUIDField(db_column="uuid", unique=True, default=uuid.uuid4, editable=False)
@@ -12,11 +19,28 @@ class CustomUser(models.Model):
     gender = models.CharField(db_column="gender", max_length=50, null=True, blank=True)
     picture_path = models.CharField(db_column="picture_path", max_length=200, null=True, blank=True)
     phone_no = models.CharField(db_column="mobile_no", max_length=10, null=True, blank=True)
+    role = models.CharField(
+        max_length=20,
+        choices=Role.choices,
+        default=Role.SUPERADMIN
+    )
     created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
     updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
 
     def __str__(self):
         return f"{self.user.email}"  # Assuming User has an email field.
+
+    def is_superadmin(self):
+        return self.role == Role.SUPERADMIN
+
+    def is_admin2(self):
+        return self.role == Role.ADMIN2
+
+    def is_staff_member(self):
+        return self.role == Role.STAFF
+
+    def is_student(self):
+        return self.role == Role.STUDENT
 
     @staticmethod
     @receiver(post_save, sender=User)
@@ -26,10 +50,11 @@ class CustomUser(models.Model):
 
 
 class ActivityLogs(models.Model):
-    ACTIVITY_LIST = {
-        '0': "created",
-        '1': "deleted',"
-    }
+    ACTIVITY_LIST = [
+        (0, "created"),
+        (1, "deleted"),
+    ]
+
     action = models.IntegerField(choices=ACTIVITY_LIST, db_column='action')
     points = models.IntegerField(db_column="Points", null=True)
     created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
@@ -74,27 +99,6 @@ class Country(models.Model):
         return f"country name: {self.country_name}"
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(CustomUser, db_column='user', on_delete=models.CASCADE)
-    bio = models.CharField(db_column="bio", max_length=2000, blank=True, null=True)
-    # activity_log = models.OneToOneField(ActivityLogs, db_column="activity_log", on_delete=models.CASCADE, default=1)
-    # security_information = models.OneToOneField(SecurityInformation, db_column="security_information",
-    #                                          on_delete=models.CASCADE, default=1)
-    # user_preference = models.OneToOneField(UserPreference, db_column="user_preference", on_delete=models.CASCADE, default=1)
-    # country = models.OneToOneField(Country, db_column="country", on_delete=models.CASCADE, default=1)
-    created_at = models.DateTimeField(auto_now_add=True, db_column="created_at")
-    updated_at = models.DateTimeField(auto_now=True, db_column="updated_at")
-
-    def __str__(self):
-        return f"profile:{self.user} "
-
-    @staticmethod
-    @receiver(post_save, sender=CustomUser)
-    def create_additional_user_data_for_user(sender, instance, created, **kwargs):
-        if created:
-            UserProfile.objects.create(user=instance)
-
-
 class Report(models.Model):
     REPORT_TYPES = [
         ('daily', 'Daily'),
@@ -130,3 +134,37 @@ class TotalReportSummary(models.Model):
 
     def __str__(self):
         return "Total Report Summary"
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    bio = models.TextField(null=True, blank=True)
+
+    activity_log = models.OneToOneField(
+        ActivityLogs, on_delete=models.CASCADE, null=True, blank=True
+    )
+    security_information = models.OneToOneField(
+        SecurityInformation, on_delete=models.CASCADE, null=True, blank=True
+    )
+    user_preference = models.OneToOneField(
+        UserPreference, on_delete=models.CASCADE, null=True, blank=True
+    )
+    country = models.ForeignKey(
+        Country, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    latest_report = models.ForeignKey(Report, db_column="latest_report", on_delete=models.SET_NULL, null=True,
+                                      blank=True)
+    total_summary = models.ForeignKey(TotalReportSummary, db_column="total_summary", on_delete=models.SET_NULL,
+                                      null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Profile of {self.user.user.username}"
+
+    @staticmethod
+    @receiver(post_save, sender=CustomUser)
+    def create_additional_user_data_for_user(sender, instance, created, **kwargs):
+        if created:
+            UserProfile.objects.create(user=instance)

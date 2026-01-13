@@ -1,3 +1,6 @@
+from django.contrib.auth.models import User
+
+from auth_sys.models import CustomUser, Role
 from dispatch_sys.models import Student
 from dispatch_sys.serializers.student_reg_serializers import StudentSerializer
 
@@ -23,13 +26,42 @@ def student_service(sender, data, callback, pk, **kwargs):
 
 
 def register_student(sender, data, callback, **kwargs):
-    serializer = StudentSerializer(data=data)
+    """
+    Handles full student registration:
+    1. Create Django User
+    2. Create CustomUser with role STUDENT
+    3. Create Student record using serializer
+    """
+    s_no = data.get("s_no")
+    nic = data.get("nic")
+    email = f"{s_no}@ousl.lk"
+    username = nic
+    password = nic  # default password
 
+    # --- Check if user already exists ---
+    if User.objects.filter(username=username).exists():
+        return callback({"success": False, "error": "User already exists"})
+
+    # --- Create Django User ---
+    django_user = User.objects.create_user(username=username, email=email, password=password)
+
+    # --- Create CustomUser ---
+    custom_user, created = CustomUser.objects.get_or_create(user=django_user)
+    custom_user.role = Role.STUDENT
+    custom_user.save()
+
+    # --- Create Student record via serializer ---
+    data['custom_user'] = custom_user.id  # link student to CustomUser
+
+    serializer = StudentSerializer(data=data)
     if serializer.is_valid():
-        student = serializer.save()
+        serializer.save()
         return callback({
             "success": True,
-            "student_id": student.data
+            "username": django_user.username,
+            "password": password,
+            "message": "Student account created successfully",
+            "student_id": serializer.data
         })
     else:
         return callback({

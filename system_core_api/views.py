@@ -1,9 +1,12 @@
+from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from auth_sys.models import CustomUser, Role
+from auth_sys.permissions import IsAdminLevel2OrAbove, IsSuperAdmin
 from events.signals.degree_program_signals import degree_program_all_show_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_add_requested, degree_program_show_requested
 from events.signals.qr_signals import student_qr_scan_requested
@@ -17,6 +20,7 @@ from events.signals.degree_program_course_signals import *
 from events.signals.student_course_signals import *
 from events.signals.center_book_signals import *
 from events.signals.received_book_signals import *
+
 
 class RegisterAPIView(APIView):
     def post(self, request):
@@ -103,28 +107,27 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class StudentRegAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsSuperAdmin]  # Only superadmin
 
     def post(self, request):
+        data = request.data
         response_holder = {}
 
+        # Trigger the signal which will handle all creation
         def callback(result):
-            if isinstance(result, dict):
-                response_holder.update(result)
+            response_holder.update(result)
 
         student_registration_requested.send(
             sender=self.__class__,
-            data=request.data,
+            data=data,
             callback=callback
         )
 
-        if response_holder.get("success") is True:
+        # Return whatever the signal sends back
+        if response_holder.get("success"):
             return Response(response_holder, status=status.HTTP_201_CREATED)
-
-        return Response(
-            response_holder or {"success": False, "error": "Registration failed"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response(response_holder or {"success": False, "error": "Student registration failed"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class StudentUpdateAPIView(APIView):
@@ -1087,6 +1090,7 @@ class CenterBookAPIView(APIView):
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
+
 class AddCenterBookAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -1152,12 +1156,12 @@ class DeleteCenterBookAPIView(APIView):
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class AllReceivedBooksAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         response_holder = {}
+
         def callback(results): response_holder.update(results)
 
         received_book_all_show_requested.send(
@@ -1165,7 +1169,8 @@ class AllReceivedBooksAPIView(APIView):
             callback=callback
         )
 
-        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
 
 
 class ReceivedBookAPIView(APIView):
@@ -1173,6 +1178,7 @@ class ReceivedBookAPIView(APIView):
 
     def get(self, request, pk):
         response_holder = {}
+
         def callback(results): response_holder.update(results)
 
         received_book_show_requested.send(
@@ -1182,7 +1188,8 @@ class ReceivedBookAPIView(APIView):
             pk=pk
         )
 
-        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
 
 
 class AddReceivedBookAPIView(APIView):
@@ -1190,6 +1197,7 @@ class AddReceivedBookAPIView(APIView):
 
     def post(self, request):
         response_holder = {}
+
         def callback(results): response_holder.update(results)
 
         received_book_add_requested.send(
@@ -1198,7 +1206,8 @@ class AddReceivedBookAPIView(APIView):
             callback=callback
         )
 
-        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get(
+            "success") else status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateReceivedBookAPIView(APIView):
@@ -1206,6 +1215,7 @@ class UpdateReceivedBookAPIView(APIView):
 
     def put(self, request, pk):
         response_holder = {}
+
         def callback(results): response_holder.update(results)
 
         received_book_update_requested.send(
@@ -1215,7 +1225,8 @@ class UpdateReceivedBookAPIView(APIView):
             pk=pk
         )
 
-        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteReceivedBookAPIView(APIView):
@@ -1223,6 +1234,7 @@ class DeleteReceivedBookAPIView(APIView):
 
     def delete(self, request, pk):
         response_holder = {}
+
         def callback(results): response_holder.update(results)
 
         received_book_delete_requested.send(
@@ -1231,4 +1243,5 @@ class DeleteReceivedBookAPIView(APIView):
             pk=pk
         )
 
-        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
