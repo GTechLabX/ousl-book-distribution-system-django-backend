@@ -2,6 +2,8 @@ from django.dispatch import receiver
 
 from dispatch_sys.services.book_services import book_delete_service, book_update_service, book_show_service, \
     book_all_service, book_add_service
+from dispatch_sys.services.center_book_services import center_book_add_service, center_book_all_service, \
+    center_book_show_service, center_book_update_service, center_book_delete_service
 from dispatch_sys.services.center_services import center_delete_service, center_update_service, center_show_service, \
     center_add_service, center_all_service
 from dispatch_sys.services.course_services import course_add_service, course_all_service, course_show_service, \
@@ -13,10 +15,17 @@ from dispatch_sys.services.degree_program_service import degree_program_add_serv
     degree_program_update_service, degree_program_show_service, degree_program_all_service
 from dispatch_sys.services.department_service import *
 from dispatch_sys.services.faculty_service import *
+from dispatch_sys.services.qr_services import get_student_from_qr_service
+from dispatch_sys.services.received_book_services import received_book_delete_service, received_book_update_service, \
+    received_book_show_service, received_book_all_service, received_book_add_service
+from dispatch_sys.services.student_course_services import student_course_delete_service, student_course_update_service, \
+    student_course_show_service, student_course_all_service, student_course_add_service
 from dispatch_sys.services.student_service import *
 from dispatch_sys.services.test_service import test_service
 from events.signals.book_signals import book_delete_requested, book_update_requested, book_show_requested, \
     book_all_show_requested, book_add_requested
+from events.signals.center_book_signals import center_book_add_requested, center_book_all_show_requested, \
+    center_book_show_requested, center_book_update_requested, center_book_delete_requested
 from events.signals.center_signals import center_delete_requested, center_update_requested, center_show_requested, \
     center_add_requested, center_all_show_requested
 from events.signals.course_signals import course_add_requested, course_all_show_requested, course_show_requested, \
@@ -27,10 +36,14 @@ from events.signals.degree_program_course_signals import degree_program_course_d
 from events.signals.degree_program_signals import degree_program_add_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_show_requested, degree_program_all_show_requested
 from events.signals.qr_signals import student_qr_scan_requested
+from events.signals.received_book_signals import received_book_delete_requested, received_book_update_requested, \
+    received_book_show_requested, received_book_all_show_requested, received_book_add_requested
 from events.signals.signals import student_registration_requested, student_update_requested, \
     student_all_requested, student_requested, student_delete_requested, testAPI
 from events.signals.faculty_signals import *
 from events.signals.department_signals import *
+from events.signals.student_course_signals import student_course_delete_requested, student_course_update_requested, \
+    student_course_show_requested, student_course_all_show_requested, student_course_add_requested
 
 
 @receiver(student_registration_requested)
@@ -293,6 +306,40 @@ def handle_center_delete(sender, callback, pk, **kwargs):
 
 # -------------------------------------------------------->>>>>>>>>>>>>>>
 
+receiver(student_course_add_requested)
+
+
+def handle_student_course_add(sender, data, callback, **kwargs):
+    result = student_course_add_service(sender, data, callback, **kwargs)
+    callback(result)
+
+
+@receiver(student_course_all_show_requested)
+def handle_student_course_all(sender, callback, **kwargs):
+    result = student_course_all_service(sender, callback, **kwargs)
+    callback(result)
+
+
+@receiver(student_course_show_requested)
+def handle_student_course_show(sender, callback, pk, **kwargs):
+    result = student_course_show_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(student_course_update_requested)
+def handle_student_course_update(sender, data, callback, pk, **kwargs):
+    result = student_course_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(student_course_delete_requested)
+def handle_student_course_delete(sender, callback, pk, **kwargs):
+    result = student_course_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+# -------------------------------------------------------->>>>>>>>>>>>>>>
+
 @receiver(degree_program_course_add_requested)
 def handle_degree_program_course_add(sender, data, callback, **kwargs):
     result = degree_program_course_add_service(sender, data, callback, **kwargs)
@@ -323,19 +370,64 @@ def handle_degree_program_course_delete(sender, callback, pk, **kwargs):
     callback(result)
 
 
-# ------------------------QR SCANNER-------------------------------->>>>>>>>>>>>>>>
-
-@receiver(student_qr_scan_requested)
-def handle_student_qr_scan(sender, callback, qr_image, **kwargs):
-    """
-    Signal handler for student QR scan.
-    Delegates logic to dispatch service, then calls callback with result.
-    """
-    result = get_student_from_qr_service(qr_image)
+@receiver(center_book_add_requested)
+def handle_center_book_add(sender, data, callback, **kwargs):
+    result = center_book_add_service(sender, data, callback, **kwargs)
     callback(result)
 
 
-# -------------------------------------------------------->>>>>>>>>>>>>>>
+@receiver(center_book_all_show_requested)
+def handle_center_book_all(sender, callback, **kwargs):
+    result = center_book_all_service(sender, callback, **kwargs)
+    callback(result)
+
+
+@receiver(center_book_show_requested)
+def handle_center_book_show(sender, callback, pk, **kwargs):
+    result = center_book_show_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(center_book_update_requested)
+def handle_center_book_update(sender, data, callback, pk, **kwargs):
+    result = center_book_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(center_book_delete_requested)
+def handle_center_book_delete(sender, callback, pk, **kwargs):
+    result = center_book_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(received_book_add_requested)
+def handle_received_book_add(sender, data, callback, **kwargs):
+    result = received_book_add_service(sender, data, callback, **kwargs)
+    callback(result)
+
+
+@receiver(received_book_all_show_requested)
+def handle_received_book_all(sender, callback, **kwargs):
+    result = received_book_all_service(sender, callback, **kwargs)
+    callback(result)
+
+
+@receiver(received_book_show_requested)
+def handle_received_book_show(sender, callback, pk, **kwargs):
+    result = received_book_show_service(sender, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(received_book_update_requested)
+def handle_received_book_update(sender, data, callback, pk, **kwargs):
+    result = received_book_update_service(sender, data, callback, pk, **kwargs)
+    callback(result)
+
+
+@receiver(received_book_delete_requested)
+def handle_received_book_delete(sender, callback, pk, **kwargs):
+    result = received_book_delete_service(sender, callback, pk, **kwargs)
+    callback(result)
 
 
 @receiver(testAPI)

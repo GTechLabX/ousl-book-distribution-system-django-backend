@@ -70,6 +70,28 @@ urlpatterns = [
     path('degree-program-course/update/<int:pk>/', views.UpdateDegreeProgramCourseAPIView.as_view(), name="update_degree_program_course_api"),
     path('degree-program-course/delete/<int:pk>/', views.DeleteDegreeProgramCourseAPIView.as_view(), name="delete_degree_program_course_api"),
 
+    path('student-courses/', views.AllStudentCoursesAPIView.as_view(), name="all_student_courses_api"),
+    path('student-course/<int:pk>/', views.StudentCourseAPIView.as_view(), name="student_course_api"),
+    path('student-course/add/', views.AddStudentCourseAPIView.as_view(), name="add_student_course_api"),
+    path('student-course/update/<int:pk>/', views.UpdateStudentCourseAPIView.as_view(),
+         name="update_student_course_api"),
+    path('student-course/delete/<int:pk>/', views.DeleteStudentCourseAPIView.as_view(),
+         name="delete_student_course_api"),
+
+
+    path('center-books/', views.AllCenterBooksAPIView.as_view(), name="all_center_books_api"),
+    path('center-book/<int:pk>/', views.CenterBookAPIView.as_view(), name="center_book_api"),
+    path('center-book/add/', views.AddCenterBookAPIView.as_view(), name="add_center_book_api"),
+    path('center-book/update/<int:pk>/', views.UpdateCenterBookAPIView.as_view(), name="update_center_book_api"),
+    path('center-book/delete/<int:pk>/', views.DeleteCenterBookAPIView.as_view(), name="delete_center_book_api"),
+
+
+    path('received-books/', views.AllReceivedBooksAPIView.as_view(), name="all_received_books_api"),
+    path('received-book/<int:pk>/', views.ReceivedBookAPIView.as_view(), name="received_book_api"),
+    path('received-book/add/', views.AddReceivedBookAPIView.as_view(), name="add_received_book_api"),
+    path('received-book/update/<int:pk>/', views.UpdateReceivedBookAPIView.as_view(), name="update_received_book_api"),
+    path('received-book/delete/<int:pk>/', views.DeleteReceivedBookAPIView.as_view(), name="delete_received_book_api"),
+
 
     path("scan-qr/", ScanQRAPIView.as_view(), name="scan-qr"),
 

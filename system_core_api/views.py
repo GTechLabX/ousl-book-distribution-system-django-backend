@@ -14,6 +14,9 @@ from events.signals.course_signals import *
 from events.signals.book_signals import *
 from events.signals.center_signals import *
 from events.signals.degree_program_course_signals import *
+from events.signals.student_course_signals import *
+from events.signals.center_book_signals import *
+from events.signals.received_book_signals import *
 
 class RegisterAPIView(APIView):
     def post(self, request):
@@ -100,27 +103,28 @@ class PasswordResetConfirmAPIView(APIView):
 
 
 class StudentRegAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # access with only register users
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         response_holder = {}
 
         def callback(result):
-            response_holder.update(result)
+            if isinstance(result, dict):
+                response_holder.update(result)
 
-        # publish raw request data
         student_registration_requested.send(
             sender=self.__class__,
             data=request.data,
             callback=callback
         )
 
-        # return whatever the dispatch system send back
-
-        if response_holder.get("success"):
+        if response_holder.get("success") is True:
             return Response(response_holder, status=status.HTTP_201_CREATED)
-        else:
-            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            response_holder or {"success": False, "error": "Registration failed"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class StudentUpdateAPIView(APIView):
@@ -655,7 +659,6 @@ class DeleteCourseAPIView(APIView):
 
 
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
-
 class AllBooksAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -663,12 +666,19 @@ class AllBooksAPIView(APIView):
     def get(self, request):
         response_holder = {}
 
-        def callback(result): response_holder.update(result)
+        def callback(result):
+            if result:
+                response_holder.update(result)
 
         book_all_show_requested.send(sender=self.__class__, callback=callback)
+
+        if not response_holder:
+            response_holder = {"success": False, "data": [], "error": "No books found"}
+
         return Response(
             response_holder,
-            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
 
 
 class BookAPIView(APIView):
@@ -677,11 +687,20 @@ class BookAPIView(APIView):
     def get(self, request, pk):
         response_holder = {}
 
-        def callback(result): response_holder.update(result)
+        def callback(result):
+            response_holder.update(result)
 
-        book_show_requested.send(sender=self.__class__, callback=callback, pk=pk)
-        return Response(response_holder,
-                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+        book_show_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk,
+        )
+
+        # send back to the user whatever dispatch system send
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddBookAPIView(APIView):
@@ -815,6 +834,7 @@ class AllDegreeProgramCoursesAPIView(APIView):
             else status.HTTP_400_BAD_REQUEST
         )
 
+
 class DegreeProgramCourseAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -904,8 +924,6 @@ class DeleteDegreeProgramCourseAPIView(APIView):
         )
 
 
-
-
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
 # -------------------------------------------------->>>>>>>>>>>>>>>>>
 
@@ -934,6 +952,7 @@ class ScanQRAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # print(request.FILES)
         if "qr_image" not in request.FILES:
             return Response({"error": "QR image required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -959,3 +978,257 @@ class ScanQRAPIView(APIView):
             status=status.HTTP_200_OK if response_holder.get("success")
             else status.HTTP_400_BAD_REQUEST
         )
+
+
+class AllStudentCoursesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        student_course_all_show_requested.send(sender=self.__class__, callback=callback)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class StudentCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        student_course_show_requested.send(sender=self.__class__, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class AddStudentCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        student_course_add_requested.send(sender=self.__class__, data=request.data, callback=callback)
+        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get(
+            "success") else status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateStudentCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        student_course_update_requested.send(sender=self.__class__, data=request.data, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteStudentCourseAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        student_course_delete_requested.send(sender=self.__class__, callback=callback, pk=pk)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class AllCenterBooksAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_book_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CenterBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_book_show_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+class AddCenterBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_book_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateCenterBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_book_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteCenterBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_book_delete_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class AllReceivedBooksAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+        def callback(results): response_holder.update(results)
+
+        received_book_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class ReceivedBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+        def callback(results): response_holder.update(results)
+
+        received_book_show_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class AddReceivedBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+        def callback(results): response_holder.update(results)
+
+        received_book_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class UpdateReceivedBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+        def callback(results): response_holder.update(results)
+
+        received_book_update_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteReceivedBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+        def callback(results): response_holder.update(results)
+
+        received_book_delete_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(response_holder, status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)

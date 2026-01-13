@@ -11,7 +11,7 @@ def generate_student_qr(instance):
     """
     Generates a QR code for a StudentQRCode instance.
     """
-    qr_data = f"Student ID: {instance.student.reg_no}, Name: {instance.student.student_name}"
+    qr_data = f"INC-ID: {instance.student.nic}, Name: {instance.student.student_name}"
 
     # Generate QR code
     img = qrcode.make(qr_data)

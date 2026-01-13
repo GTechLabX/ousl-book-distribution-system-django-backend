@@ -10,19 +10,36 @@ def book_add_service(sender, data, callback, **kwargs):
     return callback({"success": False, "errors": serializer.errors})
 
 
-def book_all_service(sender, callback, **kwargs):
+def book_all_service(sender=None, callback=None, **kwargs):
     books = Book.objects.all()
     serializer = BookSerializer(books, many=True)
-    return callback({"success": True, "data": serializer.data})
+
+    if callable(callback):
+        return callback({"success": True, "data": serializer.data})
+
+    return {"success": True, "data": serializer.data}
 
 
 def book_show_service(sender, callback, pk, **kwargs):
     try:
         book = Book.objects.get(pk=pk)
-        serializer = BookSerializer(book)
-        return callback({"success": True, "data": serializer.data})
+        serializer = BookSerializer(instance=book)
+        return callback({
+            "success": True,
+            "data": serializer.data
+        })
+
     except Book.DoesNotExist:
-        return callback({"success": False, "errors": "Book does not exist"})
+        return callback({
+            "success": False,
+            "errors": "Faculty does not exist"
+        })
+
+    except Exception as e:
+        return callback({
+            "success": False,
+            "errors": str(e)
+        })
 
 
 def book_update_service(sender, data, callback, pk, **kwargs):

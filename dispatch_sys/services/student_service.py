@@ -24,14 +24,18 @@ def student_service(sender, data, callback, pk, **kwargs):
 
 def register_student(sender, data, callback, **kwargs):
     serializer = StudentSerializer(data=data)
-    if serializer.is_valid(raise_exception=True):
+
+    if serializer.is_valid():
         student = serializer.save()
-        return callback(
-            {"success": True, "student_id": student.id}
-        )
-    return callback(
-        {"success": False, "errors": serializer.errors}
-    )
+        return callback({
+            "success": True,
+            "student_id": student.data
+        })
+    else:
+        return callback({
+            "success": False,
+            "errors": serializer.errors
+        })
 
 
 def student_delete_service(sender, callback, pk, **kwargs):

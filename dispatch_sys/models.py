@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Faculty(models.Model):
@@ -107,14 +109,14 @@ class DegreeProgramCourse(models.Model):
 
 
 class District(models.Model):
-    d_name = models.CharField(max_length=100, name="district_name")
-    additional_info = models.CharField(max_length=1000, name="info")
+    district_name = models.CharField(max_length=100, db_column="d_name")
+    info = models.CharField(max_length=1000, db_column="info")
 
     class Meta:
         db_table = "district"
 
     def __str__(self):
-        return f"District name: {self.d_name}"
+        return f"District name: {self.district_name}"
 
 
 class Center(models.Model):
@@ -139,6 +141,8 @@ class Student(models.Model):
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='student_center')
     degree_program = models.ForeignKey("DegreeProgram", on_delete=models.CASCADE, related_name="student_degree")
 
+    # courses = models.ManyToManyField(Course, through="StudentCourseRegistration", related_name="student_course")
+
     class Meta:
         db_table = "student"
         indexes = [
@@ -162,17 +166,33 @@ class StudentCourse(models.Model):
         related_name="students"
     )
 
-    # optional extra fields
-    enrollment_date = models.DateField(auto_now_add=True)
+    # registration details
+    register_year = models.IntegerField()
+    enrollment_date = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(blank=True, null=True)
+
+    # optional academic info
     grade = models.CharField(max_length=5, blank=True, null=True)
+
     is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = "student_course"
-        unique_together = ("student", "course")  # prevent duplicate enrollments
+        unique_together = ("student", "course", "register_year")
+
+    def save(self, *args, **kwargs):
+        # auto-set expiry = 1 year after enrollment
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=365)
+
+        # auto-deactivate if expired
+        if self.expires_at < timezone.now():
+            self.is_active = False
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.student.student_name} — {self.course.name}"
+        return f"{self.student.student_name} → {self.course.course_code} ({self.register_year})"
 
 
 class Book(models.Model):
@@ -249,4 +269,3 @@ class StudentQRCode(models.Model):
 
     def __str__(self):
         return f"QR Code for {self.student.student_name}"
-
