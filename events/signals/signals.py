@@ -1,5 +1,7 @@
 from django.dispatch import Signal
 
+testAPI = Signal()
+
 # API publishes this signal for student creation
 user_login_requested = Signal()
 user_register_requested = Signal()
@@ -12,3 +14,10 @@ student_update_requested = Signal()
 student_all_requested = Signal()
 student_requested = Signal()
 student_delete_requested = Signal()
+
+
+
+
+
+
+
