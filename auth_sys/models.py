@@ -4,6 +4,8 @@ from django.contrib.auth.models import AbstractUser, User
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
+from dispatch_sys.models import Center
+
 
 class Role(models.TextChoices):
     SUPERADMIN = "SUPERADMIN", "Superadmin"
@@ -156,6 +158,10 @@ class UserProfile(models.Model):
                                       blank=True)
     total_summary = models.ForeignKey(TotalReportSummary, db_column="total_summary", on_delete=models.SET_NULL,
                                       null=True, blank=True)
+
+
+    center_id = models.ForeignKey(Center, db_column="center", on_delete=models.CASCADE, null=True, blank=True)
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -120,7 +120,7 @@ class District(models.Model):
 
 
 class Center(models.Model):
-    c_name = models.CharField(name="center_name", max_length=100)
+    c_name = models.CharField(name="c_name", max_length=100)
     tel_no = models.CharField(name="tel_no", max_length=12)
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='center_district')
 
@@ -238,13 +238,14 @@ class CenterBook(models.Model):
         db_table = "center_book"
 
     def __str__(self):
-        return f"{self.center.c_name} - {self.date} at {self.time}"
+        return f" {self.center.c_name} - {self.date} at {self.time}"
 
 
 class ReceivedBook(models.Model):
     center_book = models.ForeignKey(CenterBook, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    # book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    center_book_course = models.ForeignKey(Course, on_delete=models.CASCADE)
     is_received = models.BooleanField(default=False)
 
     date = models.DateField()

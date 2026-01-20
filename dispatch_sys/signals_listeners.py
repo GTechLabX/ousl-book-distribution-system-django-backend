@@ -431,3 +431,55 @@ book_reservation_all_show_requested.connect(
     book_reservation_all_service,
     dispatch_uid="book_reservation_all_service"
 )
+
+
+
+from events.signals.district_signals import (
+    district_add_requested,
+    district_update_requested,
+    district_delete_requested,
+    district_show_requested,
+    district_all_show_requested,
+)
+
+from dispatch_sys.services.district_services import (
+    district_add_service,
+    district_update_service,
+    district_delete_service,
+    district_show_service,
+    district_all_service,
+)
+
+district_add_requested.connect(
+    district_add_service,
+    dispatch_uid="district_add_service"
+)
+
+district_update_requested.connect(
+    district_update_service,
+    dispatch_uid="district_update_service"
+)
+
+district_delete_requested.connect(
+    district_delete_service,
+    dispatch_uid="district_delete_service"
+)
+
+district_show_requested.connect(
+    district_show_service,
+    dispatch_uid="district_show_service"
+)
+
+district_all_show_requested.connect(
+    district_all_service,
+    dispatch_uid="district_all_service"
+)
+
+
+from events.signals.custom_function_signals import book_issue_requested
+from dispatch_sys.services.book_issue_services import book_issue_service
+
+book_issue_requested.connect(
+    book_issue_service,
+    dispatch_uid="book_issue_service"
+)

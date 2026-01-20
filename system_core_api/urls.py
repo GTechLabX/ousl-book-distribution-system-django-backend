@@ -73,10 +73,8 @@ urlpatterns = [
     path('student-courses/', views.AllStudentCoursesAPIView.as_view(), name="all_student_courses_api"),
     path('student-course/<int:pk>/', views.StudentCourseAPIView.as_view(), name="student_course_api"),
     path('student-course/add/', views.AddStudentCourseAPIView.as_view(), name="add_student_course_api"),
-    path('student-course/update/<int:pk>/', views.UpdateStudentCourseAPIView.as_view(),
-         name="update_student_course_api"),
-    path('student-course/delete/<int:pk>/', views.DeleteStudentCourseAPIView.as_view(),
-         name="delete_student_course_api"),
+    path('student-course/update/<int:pk>/', views.UpdateStudentCourseAPIView.as_view(), name="update_student_course_api"),
+    path('student-course/delete/<int:pk>/', views.DeleteStudentCourseAPIView.as_view(), name="delete_student_course_api"),
 
 
     path('center-books/', views.AllCenterBooksAPIView.as_view(), name="all_center_books_api"),
@@ -98,8 +96,20 @@ urlpatterns = [
     path('book-reservation/update/<int:pk>/', views.BookReservationUpdateAPIView.as_view(), name="book_reservation_update_api"),
     path('book-reservation/delete/<int:pk>/', views.BookReservationDeleteAPIView.as_view(), name="book_reservation_delete_api"),
 
-    path("scan-qr/", views.ScanQRAPIView.as_view(), name="scan-qr"),
+
+    path('districts/', views.DistrictListAPIView.as_view(), name="district_list_api"),
+    path('district/<int:pk>/', views.DistrictDetailAPIView.as_view(), name="district_detail_api"),
+    path('district/add/', views.DistrictCreateAPIView.as_view(), name="district_add_api"),
+    path('district/update/<int:pk>/', views.DistrictUpdateAPIView.as_view(), name="district_update_api"),
+    path('district/delete/<int:pk>/', views.DistrictDeleteAPIView.as_view(), name="district_delete_api"),
 
 
+
+
+    # path("scan-qr/", views.ScanQRAPIView.as_view(), name="scan-qr"), # only use for Image type/file
+    path('scan-qr/', views.ScanQRTXTAPIView.as_view(), name="scan_qr"),
+
+
+    path("issue-book/", views.IssueBookAPIView.as_view(), name="issue_book"),
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]
