@@ -5,7 +5,7 @@ from django.db import transaction
 from auth_sys.models import CustomUser, Role
 from dispatch_sys.models import Student
 from dispatch_sys.serializers.student_reg_serializers import StudentSerializer
-from events.signals.emails_signals.student_acc_created_signals import student_acc_created_required
+from events.signals.student_acc_created_signals import student_acc_created_required
 
 
 def student_service(sender, data, callback, pk, **kwargs):

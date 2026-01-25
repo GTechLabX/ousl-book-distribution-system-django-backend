@@ -7,9 +7,16 @@ urlpatterns = [
     # API Endpoints for Auth-System
 
     path('login/', views.LoginAPIView.as_view(), name='login_api'),
-    path('register/', views.RegisterAPIView.as_view(), name='register_api'),
+    # path('register/', views.RegisterAPIView.as_view(), name='register_api'),
     path('password_reset/', views.PasswordResetRequestAPIView.as_view(), name='password_reset'),
     path('password_reset_confirm/', views.PasswordResetConfirmAPIView.as_view(), name='password_reset_confirm'),
+
+
+    path('users/', views.AllUsersAPIView.as_view(), name="all_users_api"),
+    path('user/<int:pk>/', views.UserAPIView.as_view(), name="user_api"),
+    path('user/add/', views.AddUserAPIView.as_view(), name="add_user_api"),
+    path('user/update/<int:pk>/', views.UpdateUserAPIView.as_view(), name="update_user_api"),
+    path('user/delete/<int:pk>/', views.DeleteUserAPIView.as_view(), name="delete_user_api"),
 
     # API Endpoints for Student management
 

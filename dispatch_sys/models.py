@@ -1,6 +1,13 @@
+import datetime
+
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+
+
+def current_year():
+    return datetime.date.today().year
 
 
 class Faculty(models.Model):
@@ -97,7 +104,10 @@ class DegreeProgramCourse(models.Model):
     )
 
     # optional extra fields
-    year_offered = models.IntegerField(default=1)
+    year_offered = models.IntegerField(
+        default=current_year,
+        validators=[MinValueValidator(1900), MaxValueValidator(current_year())]
+    )
     is_mandatory = models.BooleanField(default=True)
 
     class Meta:
@@ -167,7 +177,11 @@ class StudentCourse(models.Model):
     )
 
     # registration details
-    register_year = models.IntegerField()
+    # register_year = models.IntegerField()
+    register_year = models.IntegerField(
+        default=current_year,
+        validators=[MinValueValidator(1900), MaxValueValidator(current_year())]
+    )
     enrollment_date = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(blank=True, null=True)
 

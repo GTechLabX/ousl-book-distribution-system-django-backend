@@ -1,25 +1,59 @@
-from dispatch_sys.models import CenterBook
+from django.db import transaction
+
+from dispatch_sys.models import CenterBook, Book
 from dispatch_sys.serializers.center_book_serializers import CenterBookSerializer
 
 
 def center_book_add_service(sender, data, callback, **kwargs):
     serializer = CenterBookSerializer(data=data)
 
-    if serializer.is_valid():
-        serializer.save()
+    if not serializer.is_valid():
         return callback({
-            "success": True,
-            "message": serializer.data
+            "success": False,
+            "errors": serializer.errors
         })
 
-    return callback({
-        "success": False,
-        "errors": serializer.errors
-    })
+    try:
+        with transaction.atomic():
+            book_id = serializer.validated_data["books"].id
+            allocation_qty = serializer.validated_data["allocation_quantity"]
+
+            # Lock the book row (important for concurrency)
+            book = Book.objects.select_for_update().get(id=book_id)
+
+            # 1️⃣ Check stock
+            if book.left_quantity < allocation_qty:
+                return callback({
+                    "success": False,
+                    "errors": {
+                        "stock": "Not enough books in stock"
+                    }
+                })
+
+            # 2️⃣ Reduce stock
+            book.left_quantity -= allocation_qty
+            book.save()
+
+            # 3️⃣ Save CenterBook record
+            center_book = serializer.save()
+
+            return callback({
+                "success": True,
+                "message": CenterBookSerializer(center_book).data
+            })
+
+    except Book.DoesNotExist:
+        return callback({
+            "success": False,
+            "errors": {
+                "book": "Book not found"
+            }
+        })
+
 
 
 def center_book_all_service(sender, callback, **kwargs):
-    center_books = CenterBook.objects.all()
+    center_books = CenterBook.objects.select_related("center", "books")
     serializer = CenterBookSerializer(center_books, many=True)
 
     return callback({

@@ -4,7 +4,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from auth_sys.models import CustomUser, Role
 from auth_sys.permissions import IsAdminLevel2OrAbove, IsSuperAdmin, IsStudent
 from events.signals.book_reservation_signals import *
@@ -23,6 +22,7 @@ from events.signals.student_course_signals import *
 from events.signals.center_book_signals import *
 from events.signals.received_book_signals import *
 from events.signals.district_signals import *
+from events.signals.auth_signals.user_signals import *
 
 
 class RegisterAPIView(APIView):
@@ -107,6 +107,91 @@ class PasswordResetConfirmAPIView(APIView):
             return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AllUsersAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_all_show_requested.send(sender=self.__class__, callback=callback)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_show_requested.send(sender=self.__class__, callback=callback, pk=pk)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class AddUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_add_requested.send(sender=self.__class__, data=request.data, callback=callback)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UpdateUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_update_requested.send(sender=self.__class__, data=request.data, callback=callback, pk=pk)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class DeleteUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_delete_requested.send(sender=self.__class__, callback=callback, pk=pk)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
 
 
 class StudentRegAPIView(APIView):
@@ -1465,14 +1550,15 @@ class IssueBookAPIView(APIView):
         def callback(result):
             response_holder.update(result)
 
-        # Send everything to the service via signal
+        # Trigger the signal with request data and the callback
         book_issue_requested.send(
             sender=self.__class__,
             data=request.data,
             callback=callback
         )
 
-        return Response(
-            response_holder,
-            status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
-        )
+        # Determine status based on the success key returned by the service
+        # If success is True, return 201 (Created), otherwise return 400 (Bad Request)
+        http_status = status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+
+        return Response(response_holder, status=http_status)

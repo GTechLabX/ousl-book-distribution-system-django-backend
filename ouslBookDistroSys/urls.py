@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('auth/', include('auth_sys.urls')),  # urls for auth system
     # path('dispatch/', include('dispatch_sys.urls')),  # urls for the dispatch system
-    path('api/', include('system_core_api.urls'))  # urls for core api
+    path('api/', include('system_core_api.urls')),  # urls for core api
+    path('', include('system_core_api.urls')),
 ]

@@ -1,6 +1,5 @@
 from django.db.models import Q
-
-from dispatch_sys.models import Student, DegreeProgramCourse, StudentCourse
+from dispatch_sys.models import Student, DegreeProgramCourse, StudentCourse, ReceivedBook
 from pyzbar.pyzbar import decode
 from PIL import Image
 
@@ -81,7 +80,7 @@ def get_student_from_qr_service(qr_image_file, **kwargs):
 
 def student_qr_scan_txt_service(sender, callback, qr_text, **kwargs):
     try:
-        # Find student using NIC / Student No / Reg No
+        # 1. Find student using NIC / Student No / Reg No
         student = Student.objects.filter(
             Q(nic=qr_text) |
             Q(s_no=qr_text) |
@@ -89,39 +88,44 @@ def student_qr_scan_txt_service(sender, callback, qr_text, **kwargs):
         ).first()
 
         if not student:
-            return {
-                "success": False,
-                "error": "Student not found"
-            }
+            return {"success": False, "error": "Student not found"}
 
+        # 2. Get enrolled courses
         enrolled_courses = StudentCourse.objects.filter(
             student=student
         ).select_related("course")
 
-        courses_data = [
-            {
+        courses_data = []
+        for sc in enrolled_courses:
+            # 3. Check if this specific student has already received the book for this course
+            # Note: We filter by student and course.
+            received_entry = ReceivedBook.objects.filter(
+                student=student,
+                center_book_course=sc.course
+            ).first()
+
+            courses_data.append({
                 "id": sc.course.id,
                 "course_code": sc.course.course_code,
                 "name": sc.course.name,
                 "register_year": sc.register_year,
                 "enrollment_date": sc.enrollment_date,
-                "grade": sc.grade,
                 "is_active": sc.is_active,
-                "expires_at": sc.expires_at,
-            }
-            for sc in enrolled_courses
-        ]
+                # --- NEW FIELDS FROM RECEIVEDBOOK ---
+                "is_received": received_entry.is_received if received_entry else False,
+                "issued_date": received_entry.date if received_entry else None,
+                "issued_time": received_entry.time if received_entry else None,
+            })
 
         return {
             "success": True,
             "student": {
-                # ✅ EXACT FIELD NAMES FROM MODEL
                 "student_name": student.student_name,
                 "nic": student.nic,
                 "s_no": student.s_no,
                 "reg_no": student.reg_no,
-                "center": student.center.c_name,
-                "district": student.district.district_name,
+                "center": student.center.c_name if student.center else "N/A",
+                "district": student.district.district_name if student.district else "N/A",
                 "email": student.email,
                 "degree_program": (
                     student.degree_program.d_program
@@ -132,7 +136,4 @@ def student_qr_scan_txt_service(sender, callback, qr_text, **kwargs):
         }
 
     except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-        }
+        return {"success": False, "error": str(e)}
