@@ -67,6 +67,29 @@ class LoginAPIView(APIView):
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh_token")
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # Send logout signal
+        user_logout_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            user=request.user,
+            refresh_token=refresh_token
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
 class PasswordResetRequestAPIView(APIView):
     def post(self, request):
         response_holder = {}
@@ -129,13 +152,14 @@ class AllUsersAPIView(APIView):
 class UserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, pk):
+    def get(self, request, pk):  # pk comes from URL
         response_holder = {}
 
         def callback(result):
             response_holder.update(result)
 
-        user_show_requested.send(sender=self.__class__, callback=callback, pk=pk)
+
+        user_show_requested.send(sender=self.__class__, callback=callback, user_id=pk)
 
         return Response(
             response_holder,
@@ -1378,7 +1402,7 @@ class DeleteReceivedBookAPIView(APIView):
 
 
 class BookReservationCreateAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         response_holder = {}
@@ -1398,7 +1422,7 @@ class BookReservationCreateAPIView(APIView):
 
 
 class BookReservationUpdateAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
 
     def put(self, request, pk):
         response_holder = {}
@@ -1419,7 +1443,7 @@ class BookReservationUpdateAPIView(APIView):
 
 
 class BookReservationDeleteAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
 
     def delete(self, request, pk):
         response_holder = {}
@@ -1439,7 +1463,7 @@ class BookReservationDeleteAPIView(APIView):
 
 
 class BookReservationDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, pk):
         response_holder = {}
@@ -1459,7 +1483,7 @@ class BookReservationDetailAPIView(APIView):
 
 
 class BookReservationListAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsStudent]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         response_holder = {}

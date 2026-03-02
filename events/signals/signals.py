@@ -4,6 +4,7 @@ testAPI = Signal()
 
 # API publishes this signal for student creation
 user_login_requested = Signal()
+user_logout_requested = Signal()
 user_register_requested = Signal()
 user_password_reset_requested = Signal()
 user_password_reset_confirm_requested = Signal()

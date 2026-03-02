@@ -38,3 +38,11 @@ user_all_show_requested.connect(
     user_all_service,
     dispatch_uid="user_all_service"
 )
+
+from events.signals.signals import user_logout_requested
+from auth_sys.services.logout_service import user_logout_service
+
+user_logout_requested.connect(
+    user_logout_service,
+    dispatch_uid="user_logout_service"
+)

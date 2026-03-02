@@ -7,6 +7,7 @@ urlpatterns = [
     # API Endpoints for Auth-System
 
     path('login/', views.LoginAPIView.as_view(), name='login_api'),
+    path('logout/', views.LogoutAPIView.as_view(), name="user_logout_api"),
     # path('register/', views.RegisterAPIView.as_view(), name='register_api'),
     path('password_reset/', views.PasswordResetRequestAPIView.as_view(), name='password_reset'),
     path('password_reset_confirm/', views.PasswordResetConfirmAPIView.as_view(), name='password_reset_confirm'),
@@ -118,5 +119,7 @@ urlpatterns = [
 
 
     path("issue-book/", views.IssueBookAPIView.as_view(), name="issue_book"),
+    # path("book-reservation/", views.MakeBookReservationAPIView.as_view(), name="make_book_reservation"),
+
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]

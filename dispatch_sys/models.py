@@ -286,6 +286,73 @@ class StudentQRCode(models.Model):
         return f"QR Code for {self.student.student_name}"
 
 
+#
+# class BookReservation(models.Model):
+#     RESERVATION_STATUS = [
+#         ('PENDING', 'Pending'),
+#         ('APPROVED', 'Approved'),
+#         ('REJECTED', 'Rejected'),
+#         ('COLLECTED', 'Collected'),
+#         ('CANCELLED', 'Cancelled'),
+#         ('EXPIRED', 'Expired'),
+#     ]
+#
+#     student = models.ForeignKey(
+#         'dispatch_sys.Student',
+#         on_delete=models.CASCADE,
+#         related_name='book_reservations'
+#     )
+#
+#     book = models.ForeignKey(
+#         'dispatch_sys.Book',
+#         on_delete=models.CASCADE,
+#         related_name='reservations'
+#     )
+#
+#     center = models.ForeignKey(
+#         'dispatch_sys.Center',
+#         on_delete=models.CASCADE,
+#         related_name='book_reservations'
+#     )
+#
+#     reservation_date = models.DateTimeField(
+#         auto_now_add=True
+#     )
+#
+#     expected_pickup_date = models.DateField()
+#
+#     status = models.CharField(
+#         max_length=20,
+#         choices=RESERVATION_STATUS,
+#         default='PENDING'
+#     )
+#
+#     remarks = models.TextField(
+#         blank=True,
+#         null=True
+#     )
+#
+#     is_active = models.BooleanField(
+#         default=True
+#     )
+#
+#     created_at = models.DateTimeField(
+#         auto_now_add=True
+#     )
+#
+#     updated_at = models.DateTimeField(
+#         auto_now=True
+#     )
+#
+#     class Meta:
+#         db_table = "book_reservations"
+#         ordering = ['-created_at']
+#         unique_together = ('student', 'book', 'status')
+#
+#     def __str__(self):
+#         return f"{self.student} → {self.book} ({self.status})"
+
+
 class BookReservation(models.Model):
     RESERVATION_STATUS = [
         ('PENDING', 'Pending'),
@@ -314,9 +381,7 @@ class BookReservation(models.Model):
         related_name='book_reservations'
     )
 
-    reservation_date = models.DateTimeField(
-        auto_now_add=True
-    )
+    reservation_date = models.DateTimeField(auto_now_add=True)
 
     expected_pickup_date = models.DateField()
 
@@ -326,27 +391,36 @@ class BookReservation(models.Model):
         default='PENDING'
     )
 
-    remarks = models.TextField(
-        blank=True,
-        null=True
-    )
+    remarks = models.TextField(blank=True, null=True)
 
-    is_active = models.BooleanField(
-        default=True
-    )
+    is_active = models.BooleanField(default=True)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    expires_at = models.DateTimeField(null=True, blank=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "book_reservations"
         ordering = ['-created_at']
-        unique_together = ('student', 'book', 'status')
+        unique_together = ('student', 'book', 'is_active')  # better than status
+
+    def save(self, *args, **kwargs):
+        # Automatically set expiration (example: 3 days after reservation)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=3)
+
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def mark_as_expired(self):
+        if self.is_expired and self.status not in ['COLLECTED', 'CANCELLED']:
+            self.status = 'EXPIRED'
+            self.is_active = False
+            self.save()
 
     def __str__(self):
         return f"{self.student} → {self.book} ({self.status})"
