@@ -483,3 +483,11 @@ book_issue_requested.connect(
     book_issue_service,
     dispatch_uid="book_issue_service"
 )
+
+from events.signals.signals import create_staff_requested
+from dispatch_sys.services.acc_creation_services import create_staff_service
+
+create_staff_requested.connect(
+    create_staff_service,
+    dispatch_uid="create_staff_service"
+)

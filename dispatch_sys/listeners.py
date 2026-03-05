@@ -1,5 +1,6 @@
 from django.dispatch import receiver
 
+from dispatch_sys.services.acc_creation_services import create_staff_service
 from dispatch_sys.services.book_issue_services import book_issue_service
 from dispatch_sys.services.book_services import book_delete_service, book_update_service, book_show_service, \
     book_all_service, book_add_service
@@ -44,7 +45,7 @@ from events.signals.district_signals import district_all_show_requested, distric
 from events.signals.received_book_signals import received_book_delete_requested, received_book_update_requested, \
     received_book_show_requested, received_book_all_show_requested, received_book_add_requested
 from events.signals.signals import student_registration_requested, student_update_requested, \
-    student_all_requested, student_requested, student_delete_requested, testAPI
+    student_all_requested, student_requested, student_delete_requested, testAPI, create_staff_requested
 from events.signals.faculty_signals import *
 from events.signals.department_signals import *
 from events.signals.student_course_signals import student_course_delete_requested, student_course_update_requested, \
@@ -463,6 +464,12 @@ def handle_district_all(sender, callback, **kwargs):
 @receiver(book_issue_requested)
 def handle_book_issue(sender, data, callback, **kwargs):
     result = book_issue_service(sender, data, callback, **kwargs)
+    callback(result)
+
+
+@receiver(create_staff_requested)
+def handle_create_staff(sender, data, callback, **kwargs):
+    result = create_staff_service(sender, data, callback, **kwargs)
     callback(result)
 
 

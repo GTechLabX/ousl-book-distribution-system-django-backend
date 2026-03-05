@@ -121,5 +121,7 @@ urlpatterns = [
     path("issue-book/", views.IssueBookAPIView.as_view(), name="issue_book"),
     # path("book-reservation/", views.MakeBookReservationAPIView.as_view(), name="make_book_reservation"),
 
+
+    path("create-staff/", views.CreateStaffAPIView.as_view(), name="create_staff"),
     path('test/', views.TestAPI.as_view(), name="testapi")
 ]

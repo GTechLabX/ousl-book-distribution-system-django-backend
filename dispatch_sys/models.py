@@ -79,7 +79,7 @@ class Course(models.Model):
 
     additional_info = models.TextField(blank=True, null=True)
 
-    years = models.IntegerField(default=1)
+    months = models.IntegerField(default=12)  # 1 year = 12 months by default
 
     is_active = models.BooleanField(default=True)
 

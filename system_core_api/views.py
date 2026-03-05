@@ -90,6 +90,7 @@ class LogoutAPIView(APIView):
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PasswordResetRequestAPIView(APIView):
     def post(self, request):
         response_holder = {}
@@ -158,7 +159,6 @@ class UserAPIView(APIView):
         def callback(result):
             response_holder.update(result)
 
-
         user_show_requested.send(sender=self.__class__, callback=callback, user_id=pk)
 
         return Response(
@@ -193,7 +193,19 @@ class UpdateUserAPIView(APIView):
         def callback(result):
             response_holder.update(result)
 
-        user_update_requested.send(sender=self.__class__, data=request.data, callback=callback, pk=pk)
+        user_update_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            data=request.data,
+            callback=callback
+        )
+
+        # Safety if no service responded
+        if not response_holder:
+            response_holder = {
+                "success": False,
+                "message": "Update service not available"
+            }
 
         return Response(
             response_holder,
@@ -210,7 +222,11 @@ class DeleteUserAPIView(APIView):
         def callback(result):
             response_holder.update(result)
 
-        user_delete_requested.send(sender=self.__class__, callback=callback, pk=pk)
+        user_delete_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk
+        )
 
         return Response(
             response_holder,
@@ -1586,3 +1602,26 @@ class IssueBookAPIView(APIView):
         http_status = status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
 
         return Response(response_holder, status=http_status)
+
+
+class CreateStaffAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        create_staff_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED
+            if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )

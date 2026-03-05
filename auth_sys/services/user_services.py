@@ -103,80 +103,80 @@ def user_add_service(sender, data, callback, **kwargs):
 #         })
 
 
-def user_update_service(sender, data, callback, user_id=None, **kwargs):
+def user_update_service(sender, data, callback, pk=None, **kwargs):
     try:
         with transaction.atomic():
 
-            user = User.objects.get(id=user_id)
+            user_id = pk
+
+            # Get user
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return callback({
+                    "success": False,
+                    "error": f"User with id {user_id} does not exist"
+                })
+
             custom_user = user.customuser
-            profile = custom_user.userprofile
+            profile = getattr(custom_user, "userprofile", None)
 
-            # Update Django User
-            DjangoUserSerializer(
+            # ---------- Update Django User ----------
+            user_serializer = DjangoUserSerializer(
                 user,
                 data=data.get("user", {}),
                 partial=True
-            ).is_valid(raise_exception=True)
+            )
+            user_serializer.is_valid(raise_exception=True)
+            user_serializer.save()
 
-            DjangoUserSerializer(
-                user,
-                data=data.get("user", {}),
-                partial=True
-            ).save()
-
-            # Update CustomUser
-            CustomUserSerializer(
+            # ---------- Update CustomUser ----------
+            custom_serializer = CustomUserSerializer(
                 custom_user,
                 data=data.get("custom_user", {}),
                 partial=True
-            ).is_valid(raise_exception=True)
+            )
+            custom_serializer.is_valid(raise_exception=True)
+            custom_serializer.save()
 
-            CustomUserSerializer(
-                custom_user,
-                data=data.get("custom_user", {}),
-                partial=True
-            ).save()
+            # ---------- Update Profile ----------
+            if profile:
+                profile_serializer = UserProfileSerializer(
+                    profile,
+                    data=data.get("profile", {}),
+                    partial=True
+                )
+                profile_serializer.is_valid(raise_exception=True)
+                profile_serializer.save()
 
-            # Update Profile
-            UserProfileSerializer(
-                profile,
-                data=data.get("profile", {}),
-                partial=True
-            ).is_valid(raise_exception=True)
-
-            UserProfileSerializer(
-                profile,
-                data=data.get("profile", {}),
-                partial=True
-            ).save()
-
-            callback({
+            return callback({
                 "success": True,
                 "message": "User updated successfully"
             })
 
     except Exception as e:
-        callback({
+        return callback({
             "success": False,
             "error": str(e)
         })
 
 
-def user_delete_service(sender, callback, user_id=None, **kwargs):
+def user_delete_service(sender, callback, pk, **kwargs):
     try:
-        user = User.objects.get(id=user_id)
-        user.delete()  # cascades to CustomUser & UserProfile
-
-        callback({
-            "success": True,
-            "message": "User deleted successfully"
-        })
-
+        user = User.objects.get(pk=pk)
     except User.DoesNotExist:
-        callback({
+        return callback({
             "success": False,
-            "error": "User not found"
+            "errors": f"User with id {pk} does not exist"
         })
+
+    # Delete user (CustomUser will delete automatically because of CASCADE)
+    user.delete()
+
+    return callback({
+        "success": True,
+        "message": "User deleted successfully",
+    })
 
 
 def user_all_service(sender, callback, **kwargs):
