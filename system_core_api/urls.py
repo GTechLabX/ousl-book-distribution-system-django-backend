@@ -123,7 +123,7 @@ urlpatterns = [
     path("view-center-allocation/<uuid:uuid>/", views.ViewCenterAllocationAPIView.as_view(), name="view_center_allocation"),
 
     path("dashboard/", views.DashboardAPIView.as_view(), name="dashboard"),
-    path("dashboard/<uuid:uuid>/", views.DashboardAPIView.as_view(), name="dashboard"),
+    path("dashboard/<uuid:uuid>/", views.DashboardAPIView.as_view(), name="dashboard_center_base"),
 
     path("create-staff/", views.CreateStaffAPIView.as_view(), name="create_staff"),
     path('test/', views.TestAPI.as_view(), name="testapi")
