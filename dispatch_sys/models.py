@@ -146,7 +146,7 @@ class Student(models.Model):
     nic = models.CharField(max_length=15, name="nic", null=False, unique=True)
     s_no = models.CharField(max_length=15, name="s_no")
     reg_no = models.CharField(max_length=15, name="reg_no")
-    email = models.EmailField(name="email", default='none')
+    email = models.EmailField(name="email", default='none', unique=True)   #todo check this and email validation and other validation
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='student_district')
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='student_center')
     degree_program = models.ForeignKey("DegreeProgram", on_delete=models.CASCADE, related_name="student_degree")
@@ -189,6 +189,7 @@ class StudentCourse(models.Model):
     grade = models.CharField(max_length=5, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
+    is_book_available = models.BooleanField(default=True)
 
     class Meta:
         db_table = "student_course"

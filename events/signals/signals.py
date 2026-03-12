@@ -16,3 +16,6 @@ student_requested = Signal()
 student_delete_requested = Signal()
 
 create_staff_requested = Signal()
+
+
+dashboard_show_requested = Signal()

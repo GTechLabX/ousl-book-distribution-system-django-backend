@@ -1,8 +1,9 @@
 from django.core.mail import EmailMessage
 from django.conf import settings
+import os
 
 
-def send_student_account_created_email(to_email, username, password):
+def send_student_account_created_email(to_email, username, password, img_path):
     subject = "OUSL Book Dispatch System – Account Created"
 
     html_body = f"""
@@ -31,5 +32,10 @@ def send_student_account_created_email(to_email, username, password):
         settings.DEFAULT_FROM_EMAIL,
         [to_email]
     )
+
     email.content_subtype = "html"
+
+    if img_path:
+        email.attach_file(img_path)
+
     email.send(fail_silently=False)

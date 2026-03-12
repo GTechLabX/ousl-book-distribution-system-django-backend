@@ -491,3 +491,20 @@ create_staff_requested.connect(
     create_staff_service,
     dispatch_uid="create_staff_service"
 )
+
+
+from events.signals.book_reservation_signals import make_book_reservation_requested
+from dispatch_sys.services.book_reservation_services import make_book_reservation_service
+
+make_book_reservation_requested.connect(
+    make_book_reservation_service,
+    dispatch_uid="make_book_reservation"
+)
+
+from events.signals.signals import dashboard_show_requested
+from dispatch_sys.services.dashboard_service import dashboard_service
+
+dashboard_show_requested.connect(
+    dashboard_service,
+    dispatch_uid="dashboard_show"
+)

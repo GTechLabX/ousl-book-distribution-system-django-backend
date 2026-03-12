@@ -68,12 +68,16 @@ def user_show_service(sender, callback, user_id, **kwargs):
 
 
 def user_add_service(sender, data, callback, **kwargs):
-    serializer = DjangoUserSerializer(data=data)
+    # Change DjangoUserSerializer to FullUserSerializer
+    serializer = FullUserSerializer(data=data)
+
     if serializer.is_valid():
+        # This will trigger the create() method you wrote in FullUserSerializer
         serializer.save()
         return callback({"success": True, "data": serializer.data})
-    return callback({"success": False, "errors": serializer.errors})
 
+    # This will now return nested errors if validation fails
+    return callback({"success": False, "errors": serializer.errors})
 
 # def user_add_service(sender, data, callback, **kwargs):
 #     try:

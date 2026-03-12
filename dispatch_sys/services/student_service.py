@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from auth_sys.models import CustomUser, Role
-from dispatch_sys.models import Student
+from dispatch_sys.models import Student, StudentQRCode
 from dispatch_sys.serializers.student_reg_serializers import StudentSerializer
 from events.signals.student_acc_created_signals import student_acc_created_required
 
@@ -79,7 +79,8 @@ def register_student(sender, data, callback, **kwargs):
         with transaction.atomic():
             s_no = data.get("s_no")
             nic = data.get("nic")
-            email = f"{s_no}@ousl.lk"
+            # email = f"{s_no}@ousl.lk"
+            email = data.get("email")
             username = nic
             password = nic
 
@@ -108,13 +109,16 @@ def register_student(sender, data, callback, **kwargs):
 
             student = serializer.save()
 
-            # --- Send Email (must raise error if fails) ---
+            img_name = StudentQRCode.objects.get(pk=student.pk)
+            img_path = img_name.qr_image.path
+
             student_acc_created_required.send(
                 sender=register_student,
                 user_id=django_user.id,
                 username=username,
                 email=email,
-                password=password
+                password=password,
+                img_path=img_path
             )
 
             # If everything passed

@@ -67,9 +67,12 @@ def center_book_show_service(sender, callback, pk, **kwargs):
         center_book = CenterBook.objects.get(pk=pk)
         serializer = CenterBookSerializer(center_book)
 
+        course_code = center_book.books.course.course_code
+
         return callback({
             "success": True,
-            "data": serializer.data
+            "data": serializer.data,
+            "course_code": course_code
         })
 
     except CenterBook.DoesNotExist:

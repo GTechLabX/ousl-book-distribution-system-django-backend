@@ -1625,3 +1625,49 @@ class CreateStaffAPIView(APIView):
             if response_holder.get("success")
             else status.HTTP_400_BAD_REQUEST
         )
+
+class MakeBookReservationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        make_book_reservation_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            user=request.user,
+            uuid=uuid
+        )
+
+        # return response from dispatch system
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ViewCenterAllocationAPIView(APIView):
+    pass
+
+
+class DashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        dashboard_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )

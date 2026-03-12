@@ -7,12 +7,13 @@ from events.signals.student_acc_created_signals import student_acc_created_requi
 
 
 @receiver(student_acc_created_required)
-def handle_student_account_created(sender, username, email, password, **kwargs):
+def handle_student_account_created(sender, username, email, password, img_path, **kwargs):
     try:
         send_student_account_created_email(
             to_email=email,
             username=username,
-            password=password
+            password=password,
+            img_path=img_path
         )
     except Exception as e:
         # log error, but DO NOT break registration
