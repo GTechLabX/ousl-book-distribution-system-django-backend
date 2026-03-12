@@ -120,7 +120,7 @@ urlpatterns = [
 
     path("issue-book/", views.IssueBookAPIView.as_view(), name="issue_book"),
     path("student-book-reservation/<uuid:uuid>/", views.MakeBookReservationAPIView.as_view(), name="make_book_reservation"),
-    path("view-center-allocation/<int:pk>/", views.ViewCenterAllocationAPIView.as_view(), name="view_center_allocation"),
+    path("view-center-allocation/<uuid:uuid>/", views.ViewCenterAllocationAPIView.as_view(), name="view_center_allocation"),
 
     path("dashboard/", views.DashboardAPIView.as_view(), name="dashboard"),
 
