@@ -1,6 +1,13 @@
+import datetime
+
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+
+
+def current_year():
+    return datetime.date.today().year
 
 
 class Faculty(models.Model):
@@ -72,7 +79,7 @@ class Course(models.Model):
 
     additional_info = models.TextField(blank=True, null=True)
 
-    years = models.IntegerField(default=1)
+    months = models.IntegerField(default=12)  # 1 year = 12 months by default
 
     is_active = models.BooleanField(default=True)
 
@@ -97,7 +104,10 @@ class DegreeProgramCourse(models.Model):
     )
 
     # optional extra fields
-    year_offered = models.IntegerField(default=1)
+    year_offered = models.IntegerField(
+        default=current_year,
+        validators=[MinValueValidator(1900), MaxValueValidator(current_year())]
+    )
     is_mandatory = models.BooleanField(default=True)
 
     class Meta:
@@ -120,7 +130,7 @@ class District(models.Model):
 
 
 class Center(models.Model):
-    c_name = models.CharField(name="center_name", max_length=100)
+    c_name = models.CharField(name="c_name", max_length=100)
     tel_no = models.CharField(name="tel_no", max_length=12)
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='center_district')
 
@@ -136,7 +146,7 @@ class Student(models.Model):
     nic = models.CharField(max_length=15, name="nic", null=False, unique=True)
     s_no = models.CharField(max_length=15, name="s_no")
     reg_no = models.CharField(max_length=15, name="reg_no")
-    email = models.EmailField(name="email", default='none')
+    email = models.EmailField(name="email", default='none', unique=True)   #todo check this and email validation and other validation
     district = models.ForeignKey('District', on_delete=models.CASCADE, related_name='student_district')
     center = models.ForeignKey('Center', on_delete=models.CASCADE, related_name='student_center')
     degree_program = models.ForeignKey("DegreeProgram", on_delete=models.CASCADE, related_name="student_degree")
@@ -167,7 +177,11 @@ class StudentCourse(models.Model):
     )
 
     # registration details
-    register_year = models.IntegerField()
+    # register_year = models.IntegerField()
+    register_year = models.IntegerField(
+        default=current_year,
+        validators=[MinValueValidator(1900), MaxValueValidator(current_year())]
+    )
     enrollment_date = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(blank=True, null=True)
 
@@ -175,6 +189,7 @@ class StudentCourse(models.Model):
     grade = models.CharField(max_length=5, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
+    is_book_available = models.BooleanField(default=True)
 
     class Meta:
         db_table = "student_course"
@@ -238,13 +253,14 @@ class CenterBook(models.Model):
         db_table = "center_book"
 
     def __str__(self):
-        return f"{self.center.c_name} - {self.date} at {self.time}"
+        return f" {self.center.c_name} - {self.date} at {self.time}"
 
 
 class ReceivedBook(models.Model):
     center_book = models.ForeignKey(CenterBook, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    # book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    center_book_course = models.ForeignKey(Course, on_delete=models.CASCADE)
     is_received = models.BooleanField(default=False)
 
     date = models.DateField()
@@ -269,3 +285,143 @@ class StudentQRCode(models.Model):
 
     def __str__(self):
         return f"QR Code for {self.student.student_name}"
+
+
+#
+# class BookReservation(models.Model):
+#     RESERVATION_STATUS = [
+#         ('PENDING', 'Pending'),
+#         ('APPROVED', 'Approved'),
+#         ('REJECTED', 'Rejected'),
+#         ('COLLECTED', 'Collected'),
+#         ('CANCELLED', 'Cancelled'),
+#         ('EXPIRED', 'Expired'),
+#     ]
+#
+#     student = models.ForeignKey(
+#         'dispatch_sys.Student',
+#         on_delete=models.CASCADE,
+#         related_name='book_reservations'
+#     )
+#
+#     book = models.ForeignKey(
+#         'dispatch_sys.Book',
+#         on_delete=models.CASCADE,
+#         related_name='reservations'
+#     )
+#
+#     center = models.ForeignKey(
+#         'dispatch_sys.Center',
+#         on_delete=models.CASCADE,
+#         related_name='book_reservations'
+#     )
+#
+#     reservation_date = models.DateTimeField(
+#         auto_now_add=True
+#     )
+#
+#     expected_pickup_date = models.DateField()
+#
+#     status = models.CharField(
+#         max_length=20,
+#         choices=RESERVATION_STATUS,
+#         default='PENDING'
+#     )
+#
+#     remarks = models.TextField(
+#         blank=True,
+#         null=True
+#     )
+#
+#     is_active = models.BooleanField(
+#         default=True
+#     )
+#
+#     created_at = models.DateTimeField(
+#         auto_now_add=True
+#     )
+#
+#     updated_at = models.DateTimeField(
+#         auto_now=True
+#     )
+#
+#     class Meta:
+#         db_table = "book_reservations"
+#         ordering = ['-created_at']
+#         unique_together = ('student', 'book', 'status')
+#
+#     def __str__(self):
+#         return f"{self.student} → {self.book} ({self.status})"
+
+
+class BookReservation(models.Model):
+    RESERVATION_STATUS = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+        ('COLLECTED', 'Collected'),
+        ('CANCELLED', 'Cancelled'),
+        ('EXPIRED', 'Expired'),
+    ]
+
+    student = models.ForeignKey(
+        'dispatch_sys.Student',
+        on_delete=models.CASCADE,
+        related_name='book_reservations'
+    )
+
+    book = models.ForeignKey(
+        'dispatch_sys.Book',
+        on_delete=models.CASCADE,
+        related_name='reservations'
+    )
+
+    center = models.ForeignKey(
+        'dispatch_sys.Center',
+        on_delete=models.CASCADE,
+        related_name='book_reservations'
+    )
+
+    reservation_date = models.DateTimeField(auto_now_add=True)
+
+    expected_pickup_date = models.DateField()
+
+    status = models.CharField(
+        max_length=20,
+        choices=RESERVATION_STATUS,
+        default='PENDING'
+    )
+
+    remarks = models.TextField(blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
+
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "book_reservations"
+        ordering = ['-created_at']
+        unique_together = ('student', 'book', 'is_active')  # better than status
+
+    def save(self, *args, **kwargs):
+        # Automatically set expiration (example: 3 days after reservation)
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(days=3)
+
+        super().save(*args, **kwargs)
+
+    @property
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def mark_as_expired(self):
+        if self.is_expired and self.status not in ['COLLECTED', 'CANCELLED']:
+            self.status = 'EXPIRED'
+            self.is_active = False
+            self.save()
+
+    def __str__(self):
+        return f"{self.student} → {self.book} ({self.status})"

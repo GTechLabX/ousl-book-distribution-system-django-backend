@@ -389,3 +389,132 @@ received_book_all_show_requested.connect(
     dispatch_uid="received_book_all_received_book_all_service"
 )
 
+
+
+from events.signals.book_reservation_signals import (
+    book_reservation_add_requested,
+    book_reservation_update_requested,
+    book_reservation_delete_requested,
+    book_reservation_show_requested,
+    book_reservation_all_show_requested,
+)
+
+from dispatch_sys.services.book_reservation_services import (
+    book_reservation_add_service,
+    book_reservation_update_service,
+    book_reservation_delete_service,
+    book_reservation_show_service,
+    book_reservation_all_service,
+)
+
+book_reservation_add_requested.connect(
+    book_reservation_add_service,
+    dispatch_uid="book_reservation_add_service"
+)
+
+book_reservation_update_requested.connect(
+    book_reservation_update_service,
+    dispatch_uid="book_reservation_update_service"
+)
+
+book_reservation_delete_requested.connect(
+    book_reservation_delete_service,
+    dispatch_uid="book_reservation_delete_service"
+)
+
+book_reservation_show_requested.connect(
+    book_reservation_show_service,
+    dispatch_uid="book_reservation_show_service"
+)
+
+book_reservation_all_show_requested.connect(
+    book_reservation_all_service,
+    dispatch_uid="book_reservation_all_service"
+)
+
+
+
+from events.signals.district_signals import (
+    district_add_requested,
+    district_update_requested,
+    district_delete_requested,
+    district_show_requested,
+    district_all_show_requested,
+)
+
+from dispatch_sys.services.district_services import (
+    district_add_service,
+    district_update_service,
+    district_delete_service,
+    district_show_service,
+    district_all_service,
+)
+
+district_add_requested.connect(
+    district_add_service,
+    dispatch_uid="district_add_service"
+)
+
+district_update_requested.connect(
+    district_update_service,
+    dispatch_uid="district_update_service"
+)
+
+district_delete_requested.connect(
+    district_delete_service,
+    dispatch_uid="district_delete_service"
+)
+
+district_show_requested.connect(
+    district_show_service,
+    dispatch_uid="district_show_service"
+)
+
+district_all_show_requested.connect(
+    district_all_service,
+    dispatch_uid="district_all_service"
+)
+
+
+from events.signals.custom_function_signals import book_issue_requested
+from dispatch_sys.services.book_issue_services import book_issue_service
+
+book_issue_requested.connect(
+    book_issue_service,
+    dispatch_uid="book_issue_service"
+)
+
+from events.signals.signals import create_staff_requested
+from dispatch_sys.services.acc_creation_services import create_staff_service
+
+create_staff_requested.connect(
+    create_staff_service,
+    dispatch_uid="create_staff_service"
+)
+
+
+from events.signals.book_reservation_signals import make_book_reservation_requested
+from dispatch_sys.services.book_reservation_services import make_book_reservation_service
+
+make_book_reservation_requested.connect(
+    make_book_reservation_service,
+    dispatch_uid="make_book_reservation"
+)
+
+from events.signals.signals import dashboard_show_requested
+from dispatch_sys.services.dashboard_service import dashboard_service
+
+dashboard_show_requested.connect(
+    dashboard_service,
+    dispatch_uid="dashboard_show"
+)
+
+
+
+from events.signals.signals import center_allocation_view_requested
+from dispatch_sys.services.center_book_services import view_center_allocation_service
+
+center_allocation_view_requested.connect(
+    view_center_allocation_service,
+    dispatch_uid="view_center_allocation_by_center"
+)

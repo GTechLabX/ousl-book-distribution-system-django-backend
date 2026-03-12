@@ -1,15 +1,17 @@
+
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from auth_sys.models import CustomUser, Role
-from auth_sys.permissions import IsAdminLevel2OrAbove, IsSuperAdmin
+from auth_sys.permissions import IsAdminLevel2OrAbove, IsSuperAdmin, IsStudent
+from events.signals.book_reservation_signals import *
+from events.signals.custom_function_signals import book_issue_requested
 from events.signals.degree_program_signals import degree_program_all_show_requested, degree_program_delete_requested, \
     degree_program_update_requested, degree_program_add_requested, degree_program_show_requested
-from events.signals.qr_signals import student_qr_scan_requested
+from events.signals.qr_signals import student_qr_scan_requested, student_qr_scan_txt_requested
 from events.signals.signals import *
 from events.signals.faculty_signals import *
 from events.signals.department_signals import *
@@ -20,6 +22,8 @@ from events.signals.degree_program_course_signals import *
 from events.signals.student_course_signals import *
 from events.signals.center_book_signals import *
 from events.signals.received_book_signals import *
+from events.signals.district_signals import *
+from events.signals.auth_signals.user_signals import *
 
 
 class RegisterAPIView(APIView):
@@ -60,6 +64,30 @@ class LoginAPIView(APIView):
 
         if response_holder.get("success"):
             return Response(response_holder, status=status.HTTP_201_CREATED)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        refresh_token = request.data.get("refresh_token")
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # Send logout signal
+        user_logout_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            user=request.user,
+            refresh_token=refresh_token
+        )
+
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
         else:
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
@@ -106,8 +134,109 @@ class PasswordResetConfirmAPIView(APIView):
             return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
 
 
+class AllUsersAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_all_show_requested.send(sender=self.__class__, callback=callback)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):  # pk comes from URL
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_show_requested.send(sender=self.__class__, callback=callback, user_id=pk)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class AddUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_add_requested.send(sender=self.__class__, data=request.data, callback=callback)
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class UpdateUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_update_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            data=request.data,
+            callback=callback
+        )
+
+        # Safety if no service responded
+        if not response_holder:
+            response_holder = {
+                "success": False,
+                "message": "Update service not available"
+            }
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class DeleteUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        user_delete_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            pk=pk
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
 class StudentRegAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsSuperAdmin]  # Only superadmin
+    permission_classes = [IsAuthenticated]  # Only superadmin
 
     def post(self, request):
         data = request.data
@@ -135,6 +264,7 @@ class StudentUpdateAPIView(APIView):
 
     def put(self, request, pk):
         response_holder = {}
+        print(request.data)
 
         def callback(result):
             response_holder.update(result)
@@ -983,6 +1113,47 @@ class ScanQRAPIView(APIView):
         )
 
 
+class ScanQRTXTAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        qr_text = request.data.get("qr_text")
+
+        if not qr_text:
+            return Response(
+                {"success": False, "error": "QR text is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        response_holder = {}
+
+        def callback(result):
+            # result MUST be a dict
+            if isinstance(result, dict):
+                response_holder.update(result)
+
+        # Fire signal
+        student_qr_scan_txt_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            qr_text=qr_text
+        )
+
+        # Safety check (signal not handled)
+        if not response_holder:
+            return Response(
+                {"success": False, "error": "QR scan service not available"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK
+            if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+
 class AllStudentCoursesAPIView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -1245,3 +1416,275 @@ class DeleteReceivedBookAPIView(APIView):
 
         return Response(response_holder,
                         status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class BookReservationCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_add_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BookReservationUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_update_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class BookReservationDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_delete_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND
+        )
+
+
+class BookReservationDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_show_requested.send(
+            sender=self.__class__,
+            pk=pk,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND
+        )
+
+
+class BookReservationListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        book_reservation_all_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK
+        )
+
+
+class DistrictCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        district_add_requested.send(sender=self.__class__, data=request.data, callback=callback)
+        return Response(response_holder, status=status.HTTP_201_CREATED if response_holder.get(
+            "success") else status.HTTP_400_BAD_REQUEST)
+
+
+class DistrictUpdateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        district_update_requested.send(sender=self.__class__, data=request.data, pk=pk, callback=callback)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST)
+
+
+class DistrictDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        district_delete_requested.send(sender=self.__class__, pk=pk, callback=callback)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND)
+
+
+class DistrictDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        district_show_requested.send(sender=self.__class__, pk=pk, callback=callback)
+        return Response(response_holder,
+                        status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_404_NOT_FOUND)
+
+
+class DistrictListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(result): response_holder.update(result)
+
+        district_all_show_requested.send(sender=self.__class__, callback=callback)
+        return Response(response_holder, status=status.HTTP_200_OK)
+
+
+class IssueBookAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        # Trigger the signal with request data and the callback
+        book_issue_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        # Determine status based on the success key returned by the service
+        # If success is True, return 201 (Created), otherwise return 400 (Bad Request)
+        http_status = status.HTTP_201_CREATED if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+
+        return Response(response_holder, status=http_status)
+
+
+class CreateStaffAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        create_staff_requested.send(
+            sender=self.__class__,
+            data=request.data,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_201_CREATED
+            if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )
+
+class MakeBookReservationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        response_holder = {}
+
+        def callback(result):
+            response_holder.update(result)
+
+        make_book_reservation_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            user=request.user,
+            uuid=uuid
+        )
+
+        # return response from dispatch system
+        if response_holder.get("success"):
+            return Response(response_holder, status=status.HTTP_200_OK)
+        else:
+            return Response(response_holder, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ViewCenterAllocationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request,uuid):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_allocation_view_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            uuid=uuid
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+class DashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        dashboard_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )

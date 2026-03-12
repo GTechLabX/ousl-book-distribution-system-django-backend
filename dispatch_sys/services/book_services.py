@@ -1,4 +1,4 @@
-from dispatch_sys.models import Book
+from dispatch_sys.models import Book, Course
 from dispatch_sys.serializers.book_serializers import BookSerializer
 
 
@@ -14,10 +14,16 @@ def book_all_service(sender=None, callback=None, **kwargs):
     books = Book.objects.all()
     serializer = BookSerializer(books, many=True)
 
-    if callable(callback):
-        return callback({"success": True, "data": serializer.data})
+    # Add course_code for each book
+    data_with_course_code = []
+    for book, serialized in zip(books, serializer.data):
+        serialized["course_code"] = book.course.course_code
+        data_with_course_code.append(serialized)
 
-    return {"success": True, "data": serializer.data}
+    if callable(callback):
+        return callback({"success": True, "data": data_with_course_code})
+
+    return {"success": True, "data": data_with_course_code}
 
 
 def book_show_service(sender, callback, pk, **kwargs):

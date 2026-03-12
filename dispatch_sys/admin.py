@@ -9,7 +9,7 @@ from .models import (
     Center,
     Student,
     StudentCourse,
-
+    BookReservation,
     Book,
     CenterBook,
     ReceivedBook,
@@ -30,3 +30,5 @@ admin.site.register(Book)
 admin.site.register(CenterBook)
 admin.site.register(ReceivedBook)
 admin.site.register(StudentQRCode)
+admin.site.register(BookReservation)
+

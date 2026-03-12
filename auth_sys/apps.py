@@ -17,3 +17,5 @@ class AuthsysConfig(AppConfig):
         user_password_reset_requested.connect(user_password_reset_service)
         user_password_reset_confirm_requested.connect(user_password_reset_confirm_service)
 
+        import auth_sys.user_registry   # Register all the USER base signals here.
+
