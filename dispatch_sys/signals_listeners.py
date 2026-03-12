@@ -518,3 +518,13 @@ center_allocation_view_requested.connect(
     view_center_allocation_service,
     dispatch_uid="view_center_allocation_by_center"
 )
+
+
+from events.signals.signals import dashboard_center_show_requested
+from dispatch_sys.services.dashboard_service import dashboard_center_service
+
+# Connect the dashboard service to the signal
+dashboard_center_show_requested.connect(
+    dashboard_center_service,
+    dispatch_uid="dashboard_center_show"
+)

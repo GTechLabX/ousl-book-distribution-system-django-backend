@@ -22,7 +22,6 @@ def center_book_add_service(sender, data, callback, **kwargs):
             # Lock the book row (important for concurrency)
             book = Book.objects.select_for_update().get(id=book_id)
 
-            # 1️⃣ Check stock
             if book.left_quantity < allocation_qty:
                 return callback({
                     "success": False,

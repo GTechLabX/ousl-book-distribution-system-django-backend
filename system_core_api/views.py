@@ -1674,14 +1674,32 @@ class ViewCenterAllocationAPIView(APIView):
 class DashboardAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, uuid):
+    def get(self, request):
         response_holder = {}
 
-        # Callback to collect data from the signal
         def callback(results):
             response_holder.update(results)
 
-        # Trigger the signal to gather dashboard data
+        dashboard_show_requested.send(
+            sender=self.__class__,
+            callback=callback
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
+
+
+class DashboardCenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
         dashboard_center_show_requested.send(
             sender=self.__class__,
             callback=callback,
@@ -1690,5 +1708,7 @@ class DashboardAPIView(APIView):
 
         return Response(
             response_holder,
-            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_200_OK
+            if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
         )

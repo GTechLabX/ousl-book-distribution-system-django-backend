@@ -11,7 +11,7 @@ from dispatch_sys.services.center_services import center_delete_service, center_
     center_add_service, center_all_service
 from dispatch_sys.services.course_services import course_add_service, course_all_service, course_show_service, \
     course_update_service, course_delete_service
-from dispatch_sys.services.dashboard_service import dashboard_service
+from dispatch_sys.services.dashboard_service import dashboard_service, dashboard_center_service
 from dispatch_sys.services.degree_program_course_services import degree_program_course_delete_service, \
     degree_program_course_update_service, degree_program_course_show_service, degree_program_course_all_service, \
     degree_program_course_add_service
@@ -49,7 +49,7 @@ from events.signals.received_book_signals import received_book_delete_requested,
     received_book_show_requested, received_book_all_show_requested, received_book_add_requested
 from events.signals.signals import student_registration_requested, student_update_requested, \
     student_all_requested, student_requested, student_delete_requested, testAPI, create_staff_requested, \
-    dashboard_show_requested, center_allocation_view_requested
+    dashboard_show_requested, center_allocation_view_requested, dashboard_center_show_requested
 from events.signals.faculty_signals import *
 from events.signals.department_signals import *
 from events.signals.student_course_signals import student_course_delete_requested, student_course_update_requested, \
@@ -497,3 +497,8 @@ def handle_dashboard_show(sender, callback, **kwargs):
 @receiver(center_allocation_view_requested)
 def handle_view_center_allocation(sender, callback, uuid, **kwargs):
     callback(view_center_allocation_service(sender, uuid, **kwargs))
+
+
+@receiver(dashboard_center_show_requested)
+def handle_dashboard_show(sender, callback, uuid, **kwargs):
+    callback(dashboard_center_service(sender, callback, uuid, **kwargs))
