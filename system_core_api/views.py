@@ -1682,7 +1682,7 @@ class DashboardAPIView(APIView):
             response_holder.update(results)
 
         # Trigger the signal to gather dashboard data
-        dashboard_show_requested.send(
+        dashboard_center_show_requested.send(
             sender=self.__class__,
             callback=callback,
             uuid=uuid
