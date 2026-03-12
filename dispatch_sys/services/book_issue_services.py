@@ -4,15 +4,14 @@ from django.utils import timezone
 from dispatch_sys.models import Student, CenterBook, ReceivedBook
 from auth_sys.models import CustomUser
 
+# from events.signals.student_acc_created_signals import book_issue_required
+
 
 def book_issue_service(sender, data, callback, **kwargs):
-    # 1. Data Extraction
     admin_uuid_str = data.get("admin_uuid")
     student_nic = data.get("student_nic")
     book_id = data.get("book_id")
     course_id = data.get("course_id") or book_id
-
-    # --- PRE-TRANSACTION VALIDATIONS ---
 
     # 2. Validate Admin and Center
     try:
@@ -67,9 +66,13 @@ def book_issue_service(sender, data, callback, **kwargs):
                 time=timezone.now().time()
             )
 
-            # 7. Update Stock
             center_book.allocation_quantity = models.F('allocation_quantity') - 1
             center_book.save()
+
+            # book_issue_required.send(
+            #     email=student,
+            #     course_id=rb
+            # )
 
             return callback({
                 "success": True,

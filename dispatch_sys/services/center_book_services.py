@@ -52,7 +52,8 @@ def center_book_add_service(sender, data, callback, **kwargs):
 
 
 def center_book_all_service(sender, callback, **kwargs):
-    center_books = CenterBook.objects.select_related("center", "books")
+    center_books = CenterBook.objects.select_related("center", "books", "books__course")
+
     serializer = CenterBookSerializer(center_books, many=True)
 
     return callback({

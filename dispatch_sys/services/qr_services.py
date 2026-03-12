@@ -115,6 +115,7 @@ def student_qr_scan_txt_service(sender, callback, qr_text, **kwargs):
                 "is_received": received_entry.is_received if received_entry else False,
                 "issued_date": received_entry.date if received_entry else None,
                 "issued_time": received_entry.time if received_entry else None,
+                # "is_available":
             })
 
         return {
