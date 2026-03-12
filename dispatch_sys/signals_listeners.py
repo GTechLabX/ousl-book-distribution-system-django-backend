@@ -508,3 +508,13 @@ dashboard_show_requested.connect(
     dashboard_service,
     dispatch_uid="dashboard_show"
 )
+
+
+
+from events.signals.signals import center_allocation_view_requested
+from dispatch_sys.services.center_book_services import view_center_allocation_service
+
+center_allocation_view_requested.connect(
+    view_center_allocation_service,
+    dispatch_uid="view_center_allocation_by_center"
+)

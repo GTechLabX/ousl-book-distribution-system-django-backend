@@ -153,6 +153,7 @@ def user_update_service(sender, data, callback, pk=None, **kwargs):
                 profile_serializer.is_valid(raise_exception=True)
                 profile_serializer.save()
 
+
             return callback({
                 "success": True,
                 "message": "User updated successfully"

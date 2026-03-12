@@ -19,3 +19,5 @@ create_staff_requested = Signal()
 
 
 dashboard_show_requested = Signal()
+
+center_allocation_view_requested = Signal()

@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -1650,8 +1651,24 @@ class MakeBookReservationAPIView(APIView):
 
 
 class ViewCenterAllocationAPIView(APIView):
-    pass
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request,uuid):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        center_allocation_view_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            uuid=uuid
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK if response_holder.get("success") else status.HTTP_400_BAD_REQUEST
+        )
 
 class DashboardAPIView(APIView):
     permission_classes = [IsAuthenticated]

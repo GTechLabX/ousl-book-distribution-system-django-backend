@@ -1,5 +1,6 @@
 from django.db import transaction
 
+from auth_sys.models import CustomUser
 from dispatch_sys.models import CenterBook, Book
 from dispatch_sys.serializers.center_book_serializers import CenterBookSerializer
 
@@ -49,7 +50,6 @@ def center_book_add_service(sender, data, callback, **kwargs):
                 "book": "Book not found"
             }
         })
-
 
 
 def center_book_all_service(sender, callback, **kwargs):
@@ -128,4 +128,49 @@ def center_book_delete_service(sender, callback, pk, **kwargs):
         return callback({
             "success": False,
             "errors": "CenterBook not found"
+        })
+
+
+def view_center_allocation_service(sender, callback, uuid, **kwargs):
+    try:
+
+        # get user
+        custom_user = CustomUser.objects.get(uuid=uuid)
+
+        # get center from profile
+        profile = custom_user.userprofile
+        center = profile.center_id
+
+        # get center books
+        center_books = CenterBook.objects.filter(center=center).order_by('-id')
+
+        data = []
+
+        for item in center_books:
+            data.append({
+                "id": item.id,
+                "center": item.center.c_name,
+                "book": item.books.name,
+                "date": item.date,
+                "time": item.time,
+                "status": item.status,
+                "approved": item.approved,
+                "allocation_quantity": item.allocation_quantity
+            })
+
+        callback({
+            "success": True,
+            "data": data
+        })
+
+    except CustomUser.DoesNotExist:
+        callback({
+            "success": False,
+            "message": "User not found"
+        })
+
+    except Exception as e:
+        callback({
+            "success": False,
+            "error": str(e)
         })
