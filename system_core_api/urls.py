@@ -122,7 +122,9 @@ urlpatterns = [
     path("student-book-reservation/<uuid:uuid>/", views.MakeBookReservationAPIView.as_view(), name="make_book_reservation"),
     path("view-center-allocation/<uuid:uuid>/", views.ViewCenterAllocationAPIView.as_view(), name="view_center_allocation"),
 
+    path("get-reservation-base-on-center/<uuid:uuid>/", views.getReservationBaseOnCenterAPIView.as_view(), name="get_reservation_base_on_center"),
     path("dashboard/", views.DashboardAPIView.as_view(), name="dashboard"),
+    path("dashboard/<uuid:uuid>/", views.DashboardCenterAPIView.as_view(), name="dashboard_center_base"),
 
     path("create-staff/", views.CreateStaffAPIView.as_view(), name="create_staff"),
     path('test/', views.TestAPI.as_view(), name="testapi")

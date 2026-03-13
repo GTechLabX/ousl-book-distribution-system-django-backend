@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from auth_sys.models import CustomUser
-from dispatch_sys.models import CenterBook, Book
+from dispatch_sys.models import CenterBook, Book, BookReservation
 from dispatch_sys.serializers.center_book_serializers import CenterBookSerializer
 
 
@@ -22,7 +22,6 @@ def center_book_add_service(sender, data, callback, **kwargs):
             # Lock the book row (important for concurrency)
             book = Book.objects.select_for_update().get(id=book_id)
 
-            # 1️⃣ Check stock
             if book.left_quantity < allocation_qty:
                 return callback({
                     "success": False,
@@ -53,7 +52,8 @@ def center_book_add_service(sender, data, callback, **kwargs):
 
 
 def center_book_all_service(sender, callback, **kwargs):
-    center_books = CenterBook.objects.select_related("center", "books")
+    center_books = CenterBook.objects.select_related("center", "books", "books__course")
+
     serializer = CenterBookSerializer(center_books, many=True)
 
     return callback({
@@ -156,6 +156,56 @@ def view_center_allocation_service(sender, callback, uuid, **kwargs):
                 "status": item.status,
                 "approved": item.approved,
                 "allocation_quantity": item.allocation_quantity
+            })
+
+        callback({
+            "success": True,
+            "data": data
+        })
+
+    except CustomUser.DoesNotExist:
+        callback({
+            "success": False,
+            "message": "User not found"
+        })
+
+    except Exception as e:
+        callback({
+            "success": False,
+            "error": str(e)
+        })
+
+
+
+
+def reservation_base_on_center_service(sender, callback, uuid, **kwargs):
+    try:
+
+        # get user
+        user = CustomUser.objects.get(uuid=uuid)
+
+        # get center from profile
+        profile = user.userprofile
+        center = profile.center_id
+
+        # get reservations for that center
+        reservations = BookReservation.objects.filter(center=center).order_by("-created_at")
+
+        data = []
+
+        for item in reservations:
+            data.append({
+                "id": item.id,
+                "student": item.student.student_name,
+                "student_reg_no": item.student.reg_no,
+                "book": item.book.name,
+                "center": item.center.c_name,
+                "reservation_date": item.reservation_date,
+                "expected_pickup_date": item.expected_pickup_date,
+                "status": item.status,
+                "remarks": item.remarks,
+                "is_active": item.is_active,
+                "expires_at": item.expires_at
             })
 
         callback({

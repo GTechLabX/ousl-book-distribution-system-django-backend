@@ -246,6 +246,7 @@ class CenterBook(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     approved = models.BooleanField(default=False)
+    # course_id = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="center_course")
 
     allocation_quantity = models.IntegerField(default=0)
 
