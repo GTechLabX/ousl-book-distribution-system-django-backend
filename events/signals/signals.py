@@ -22,3 +22,4 @@ dashboard_show_requested = Signal()
 dashboard_center_show_requested = Signal()
 
 center_allocation_view_requested = Signal()
+reservation_base_on_center_requested = Signal()

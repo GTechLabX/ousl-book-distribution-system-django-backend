@@ -1,9 +1,15 @@
 from rest_framework import serializers
 from dispatch_sys.models import CenterBook
 
+
 class CenterBookSerializer(serializers.ModelSerializer):
+    # Works for the UI expecting just the name
+    book_name = serializers.CharField(source="books.name", read_only=True)
+
+    # Works for the UI expecting the center name
     center_name = serializers.CharField(source="center.c_name", read_only=True)
-    # Combine book name + course code
+
+    # Works for the UI expecting "Name (Course Code)"
     book_with_course = serializers.SerializerMethodField()
 
     class Meta:
@@ -13,7 +19,8 @@ class CenterBookSerializer(serializers.ModelSerializer):
             "center",
             "center_name",
             "books",
-            "book_with_course",
+            "book_name",  # <--- UI A uses this
+            "book_with_course",  # <--- UI B uses this
             "date",
             "time",
             "status",
@@ -22,6 +29,8 @@ class CenterBookSerializer(serializers.ModelSerializer):
         ]
 
     def get_book_with_course(self, obj):
-        # obj.books is the Book instance
-        # obj.books.course is the Course instance
-        return f"{obj.books.name} ({obj.books.course.course_code})"
+        try:
+            # Safely handle if books or course are missing
+            return f"{obj.books.name} ({obj.books.course.course_code})"
+        except AttributeError:
+            return "N/A"

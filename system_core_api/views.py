@@ -1712,3 +1712,27 @@ class DashboardCenterAPIView(APIView):
             if response_holder.get("success")
             else status.HTTP_400_BAD_REQUEST
         )
+
+
+
+class getReservationBaseOnCenterAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, uuid):
+        response_holder = {}
+
+        def callback(results):
+            response_holder.update(results)
+
+        reservation_base_on_center_requested.send(
+            sender=self.__class__,
+            callback=callback,
+            uuid=uuid
+        )
+
+        return Response(
+            response_holder,
+            status=status.HTTP_200_OK
+            if response_holder.get("success")
+            else status.HTTP_400_BAD_REQUEST
+        )

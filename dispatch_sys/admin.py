@@ -32,3 +32,4 @@ admin.site.register(ReceivedBook)
 admin.site.register(StudentQRCode)
 admin.site.register(BookReservation)
 
+

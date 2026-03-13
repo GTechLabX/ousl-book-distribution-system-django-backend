@@ -528,3 +528,11 @@ dashboard_center_show_requested.connect(
     dashboard_center_service,
     dispatch_uid="dashboard_center_show"
 )
+
+from events.signals.signals import reservation_base_on_center_requested
+from dispatch_sys.services.center_book_services import reservation_base_on_center_service
+
+reservation_base_on_center_requested.connect(
+    reservation_base_on_center_service,
+    dispatch_uid="reservation_base_on_center"
+)
