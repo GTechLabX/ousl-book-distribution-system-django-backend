@@ -5,6 +5,8 @@ Welcome to the **OUSL Book Distribution System**, a web application designed to 
 
 Whether you’re a beginner or a professional, exploring this project will help you **enhance your knowledge and grow in your IT journey**.
 
+This system leverages **Django’s internal signals** for efficient communication between components, follows a **loosely coupled architecture**, and is designed to be **microservice-ready**, making it flexible and scalable for future extensions.
+
 ---
 
 ## 🚀 Features
