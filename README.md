@@ -1,27 +1,33 @@
 
+# OUSL Book Distribution System BACKEND
 
-# OUSL Book Distribution System
+Welcome to the **OUSL Book Distribution System**, a web application designed to efficiently manage and distribute books at the Open University of Sri Lanka (OUSL). This system includes both frontend and backend components, with this repository containing the **Django backend**.
 
-This is the **OUSL Book Distribution System**, a web application designed to manage and distribute books efficiently for the Open University of Sri Lanka (OUSL). The system includes both frontend and backend components, with this repository containing the **Django backend**.
+Whether you’re a beginner or a professional, exploring this project will help you **enhance your knowledge and grow in your IT journey**.
 
 ---
 
 ## 🚀 Features
 
-- Manage books, students, and distribution records  
-- User authentication (Admin and Staff)  
-- REST API endpoints for integration with frontend  
-- Database management with SQLite (default)  
-- Admin dashboard for easy management  
+* Manage books, students, and distribution records
+* User authentication for Admin and Staff
+* REST API endpoints for frontend integration
+* Admin dashboard for easy management
+* Book reservation system for students
+* Automated notifications (email/SMS)
+* Request status tracking
+* QR code scanning for books
+* Feedback and issue reporting
 
 ---
 
 ## 🛠️ Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/yourusername/OUSL-Book-Distribution-System-Django-Backend.git
-````
+```
 
 2. **Go to the project directory**
 
@@ -33,8 +39,10 @@ cd OUSL-Book-Distribution-System-Django-Backend
 
 ```bash
 python -m venv venv
+
 # Windows
 venv\Scripts\activate
+
 # Linux / Mac
 source venv/bin/activate
 ```
@@ -45,34 +53,70 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-5. **Run database migrations**
+5. **Configure the `.env` file**
+
+Create a file named `.env` in the root directory of the project and add the following information:
+
+```env
+# Main Database
+DATABASE_NAME="OUSLBookDB"
+DATABASE_USER="root"
+DATABASE_PASSWORD=""
+DATABASE_HOST="127.0.0.1"
+DATABASE_PORT="3306"
+
+# Test Database
+TEST_DATABASE_NAME="TestOUSLBookDB"
+
+# Email settings
+EMAIL_HOST_USER=""
+EMAIL_HOST_PASSWORD=""
+```
+
+> **Note:**
+>
+> * Replace empty fields with your actual database and email credentials.
+> * `.env` helps Django load your sensitive credentials securely.
+> * For the email system, you can use Gmail or other SMTP providers.
+
+6. **Run database migrations**
 
 ```bash
 python manage.py migrate
 ```
 
-6. **Create a superuser**
+7. **Create a superuser**
 
 ```bash
 python manage.py createsuperuser
 ```
 
-7. **Start the development server**
+8. **Start the development server**
 
 ```bash
 python manage.py runserver
 ```
 
-Visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** to see the application running.
-Visit **[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)** to access the admin panel.
+* Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to see the application running.
+* Visit [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) to access the admin panel.
 
 ---
 
 ## 🧩 Tech Stack
 
 * **Backend:** Python, Django
-* **Database:** SQLite (default)
-* **API:** Django REST Framework (if applicable)
+* **Database:** MySQL (default), SQLite for testing
+* **API:** Django REST Framework
+
+---
+
+## 🔹 New Unique Features
+
+1. **Book Reservation** – Students can reserve books online, reducing queues.
+2. **Automated Notifications** – Sends emails/SMS for issue confirmations, request approvals, and low stock alerts.
+3. **Request Status Tracking** – Students can track requests as “Pending,” “Approved,” or “Ready for Collection.”
+4. **QR Code Scanning for Books** – Staff can scan QR codes to check book details, update inventory, and record transactions instantly.
+5. **Feedback & Issue Reporting** – Students and staff can report issues; admins can review and take action.
 
 ---
 
@@ -83,47 +127,12 @@ Visit **[http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)** to access
 
 ---
 
+## 💡 Final Note
 
-happy coding...................................:)
+I hope anyone who explores this project **enhances their knowledge** and grows in their **IT industry journey** by learning from my work. Keep experimenting, learning, and innovating.
 
-
-
-
-
+**Happy coding! 😊**
 
 
 
----
-
-### 🔹 New Unique Features
-
-1. **Book Reservation**
-
-   * Students can reserve books online before visiting the center, reducing queues and ensuring availability.
-
-2. **Automated Notifications**
-
-   * Sends email/SMS alerts for:
-
-     * Book issue confirmation
-     * Request approval
-     * Low stock alerts
-
-3. **Request Status Tracking**
-
-   * Students can view the status of their book requests: “Pending,” “Approved,” or “Ready for Collection.”
-
-4. **QR Code Scanning for Books**
-
-   * Staff can scan QR codes to:
-
-     * Check book details
-     * Update inventory
-     * Record issuing transactions instantly
-
-5. **Feedback & Issue Reporting**
-
-   * Students and staff can report issues or give feedback on books (e.g., damaged books, wrong issuance, delays)
-   * Admin can review and take action
-
-
+ you want me to do that?
